@@ -12,7 +12,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
-      webSpatial(),
+      webSpatial({
+        outputDir: "",
+      }),
       createHtmlPlugin({
         inject: {
           data: {

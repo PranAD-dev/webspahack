@@ -1,5 +1,4 @@
-import type { Mood } from '../types';
-import { MOODS } from '../types';
+import { type Mood, MOODS } from '../types';
 import './MoodSelector.css';
 
 interface MoodSelectorProps {
@@ -12,7 +11,7 @@ export function MoodSelector({ selectedMood, onSelectMood }: MoodSelectorProps) 
     <div className="mood-selector">
       <h3>How are you feeling?</h3>
       <div className="mood-grid">
-        {MOODS.map((mood) => (
+        {MOODS.map((mood: Mood) => (
           <button
             key={mood.id}
             className={`mood-bubble ${selectedMood?.id === mood.id ? 'selected' : ''}`}

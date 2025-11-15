@@ -2,6 +2,7 @@
   "name": "Spatial Journal",
   "short_name": "Journal",
   "description": "Your thoughts deserve space - An XR journaling experience",
+  "start_url": "/",
   "xr_main_scene": {
     "default_size": {
       "width": 1200,

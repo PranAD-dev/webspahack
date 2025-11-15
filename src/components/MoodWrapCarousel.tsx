@@ -195,11 +195,11 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
     }
   };
 
-  const goToPrevious = () => {
-    if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1);
-    }
-  };
+  // const goToPrevious = () => {
+  //   if (currentSlide > 0) {
+  //     setCurrentSlide(currentSlide - 1);
+  //   }
+  // };
 
   const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
     // Don't trigger tap if we just finished dragging

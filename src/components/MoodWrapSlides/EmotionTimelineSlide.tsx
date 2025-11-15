@@ -1,5 +1,4 @@
 import type { MoodWrapStats } from '../../services/moodWrapService';
-import { MOODS } from '../../types';
 import './SlideBase.css';
 
 interface EmotionTimelineSlideProps {
@@ -9,8 +8,6 @@ interface EmotionTimelineSlideProps {
 export function EmotionTimelineSlide({ stats }: EmotionTimelineSlideProps) {
   if (!stats.monthlyBreakdown || stats.monthlyBreakdown.length === 0) return null;
 
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
   return (
     <div className="slide-base emotion-timeline-slide">
       <div className="slide-content">
@@ -18,7 +15,6 @@ export function EmotionTimelineSlide({ stats }: EmotionTimelineSlideProps) {
         <div className="timeline-heatmap">
           {stats.monthlyBreakdown.map((monthData, index) => {
             const monthName = monthData.month.split(' ')[0];
-            const monthIndex = monthNames.indexOf(monthName);
             const mood = monthData.topMood;
             const intensity = Math.min(monthData.entries.length / 10, 1);
             

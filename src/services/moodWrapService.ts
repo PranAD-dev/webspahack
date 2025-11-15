@@ -298,7 +298,7 @@ export function calculateYearlyStats(entries: JournalEntry[]): MoodWrapStats {
   });
   
   // Calculate top mood for each month
-  monthlyBreakdown.forEach((data, month) => {
+  monthlyBreakdown.forEach((data, _month) => {
     const moodCounts = new Map<string, number>();
     data.entries.forEach(e => {
       moodCounts.set(e.mood.id, (moodCounts.get(e.mood.id) || 0) + 1);
@@ -493,8 +493,9 @@ function calculateStats(
 
   // Generate insights
   const insights: string[] = [];
-  if (topMood) {
-    const moodId = topMood.id;
+  if (topMood !== null) {
+    const currentMood: Mood = topMood;
+    const moodId = currentMood.id;
     if (moodId === 'calm') {
       insights.push("You've been finding your center this week 🌊");
     } else if (moodId === 'happy') {
@@ -504,7 +505,7 @@ function calculateStats(
     } else if (moodId === 'reflective') {
       insights.push("You're taking time to understand yourself 🤔");
     } else {
-      insights.push(`You've been feeling mostly ${topMood.name.toLowerCase()}`);
+      insights.push(`You've been feeling mostly ${currentMood.name.toLowerCase()}`);
     }
   }
 
@@ -514,7 +515,7 @@ function calculateStats(
 
   // Generate goal
   let goal = "Keep writing! Every entry matters 💫";
-  const topMoodId = topMood?.id;
+  const topMoodId = topMood !== null ? (topMood as Mood).id : undefined;
   if (topMoodId === 'anxious' || topMoodId === 'overwhelmed') {
     goal = "Try morning meditation or breathing exercises 🧘";
   } else if (topMoodId === 'sad') {

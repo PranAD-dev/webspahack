@@ -3,7 +3,7 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%);
+  background: #ffffff; /* White background like mind map example */
 }
 
 .bubble-canvas {
@@ -51,7 +51,7 @@
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(0, 0, 0, 0.6); /* Dark text for white background */
   pointer-events: none;
   z-index: 10;
   animation: bubbleHintFade 3s ease-in-out infinite;
@@ -180,22 +180,62 @@
   line-height: 1;
 }
 
-.bubble-detail-text {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.1rem;
-  line-height: 1.8;
+.bubble-detail-header {
+  text-align: center;
   margin-bottom: 2rem;
+}
+
+.bubble-mood-name {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 2rem;
+  font-weight: 300;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.1em;
+}
+
+.bubble-entry-count {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+  font-weight: 300;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.bubble-entries-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bubble-entry-item {
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.bubble-entry-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(5px);
+}
+
+.bubble-entry-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 0.8rem;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
 
-.bubble-detail-date {
-  text-align: center;
+.bubble-entry-date {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 300;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Custom scrollbar for modal */

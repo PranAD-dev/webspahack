@@ -6,7 +6,7 @@ import { LandingPage } from './pages/LandingPage';
 import { FeatureSelection } from './pages/FeatureSelection';
 import { NewJournalEntry } from './pages/NewJournalEntry';
 import { MoodWrap } from './pages/MoodWrap';
-import { BackButton } from './components/BackButton';
+import { EmotionBubble } from './pages/EmotionBubble';
 import type { JournalEntry, Mood } from './types';
 import { MoodSelector } from './components/MoodSelector';
 import { VoiceInput } from './components/VoiceInput';
@@ -155,12 +155,7 @@ function App() {
         <Route path="/journal" element={<NewJournalEntry />} />
         <Route path="/journal-old" element={<JournalApp />} />
         <Route path="/mood-wrap" element={<MoodWrap />} />
-        <Route path="/emotion-bubble" element={
-          <div className="coming-soon">
-            <BackButton />
-            <div className="coming-soon-content">Emotion Bubble - Coming Soon</div>
-          </div>
-        } />
+        <Route path="/emotion-bubble" element={<EmotionBubble />} />
         <Route path="/second-page" element={<SecondPage />} />
         <Route path="/entry" element={<JournalEntryScene />} />
       </Routes>

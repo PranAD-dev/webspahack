@@ -112,33 +112,21 @@ export async function enhanceJournalEntry(
 
 /**
  * Detect mood from journal entry text
+ * Now uses Gemini AI for faster and more accurate mood detection
  */
 export async function detectMood(entry: string): Promise<{ mood: string; confidence: string } | { error: string }> {
   try {
-    const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 100,
-      messages: [
-        {
-          role: 'user',
-          content: `Analyze this journal entry and detect the primary mood. Respond with ONLY one word from this list: calm, happy, overwhelmed, sad, anxious, grateful, excited, reflective. If the mood is unclear, choose the closest match.\n\nJournal entry: "${entry}"\n\nRespond with just the mood word.`,
-        },
-      ],
-    });
+    // Import the Gemini-based mood detection
+    const { detectMood: detectMoodWithGemini } = await import('./moodDetection');
 
-    const content = message.content[0];
-    if (content.type === 'text') {
-      const moodText = content.text.trim().toLowerCase();
-      // Extract just the mood word (in case there's extra text)
-      const moodMatch = moodText.match(/\b(calm|happy|overwhelmed|sad|anxious|grateful|excited|reflective)\b/);
-      if (moodMatch) {
-        return { mood: moodMatch[1], confidence: 'high' };
-      }
-      return { error: 'Could not detect mood' };
-    }
-    return { error: 'Unexpected response format' };
+    const result = await detectMoodWithGemini(entry);
+
+    return {
+      mood: result.mood.id,
+      confidence: result.confidence > 0.7 ? 'high' : result.confidence > 0.4 ? 'medium' : 'low'
+    };
   } catch (error: any) {
-    console.error('Claude API error:', error);
+    console.error('Mood detection error:', error);
     return { error: error.message || 'Failed to detect mood' };
   }
 }

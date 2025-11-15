@@ -6,7 +6,7 @@ import './EmotionBubble.css';
 
 interface EmotionNode {
   mesh: THREE.Mesh;
-  labelMesh?: THREE.Mesh;
+  labelMesh?: THREE.Sprite;
   mood: Mood;
   entryCount: number;
   entries: JournalEntry[];
@@ -15,7 +15,7 @@ interface EmotionNode {
 
 interface AttributeNode {
   mesh: THREE.Mesh;
-  labelMesh?: THREE.Mesh;
+  labelMesh?: THREE.Sprite;
   text: string;
   position: THREE.Vector3;
   parentNode: EmotionNode;
@@ -31,9 +31,8 @@ export function EmotionBubble() {
   const linesRef = useRef<THREE.Line[]>([]);
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [selectedMood, setSelectedMood] = useState<{ mood: Mood; entries: JournalEntry[] } | null>(null);
-  const raycasterRef = useRef(new THREE.Raycaster());
-  const animationFrameRef = useRef<number>();
-  const fontRef = useRef<any>(null);
+  const raycasterRef = useRef<THREE.Raycaster | null>(null);
+  const animationFrameRef = useRef<number | undefined>(undefined);
 
   // Load entries from localStorage
   useEffect(() => {
@@ -209,7 +208,7 @@ export function EmotionBubble() {
       // Store emotion node
       const emotionNode: EmotionNode = {
         mesh,
-        labelMesh: label || undefined,
+        labelMesh: label ? label : undefined,
         mood,
         entryCount,
         entries: moodEntries,
@@ -280,7 +279,7 @@ export function EmotionBubble() {
         // Store attribute node
         const attributeNode: AttributeNode = {
           mesh: attrMesh,
-          labelMesh: attrLabel || undefined,
+          labelMesh: attrLabel ? attrLabel : undefined,
           text: attr,
           position: new THREE.Vector3(attrX, attrY, attrZ),
           parentNode: emotionNode,
@@ -338,6 +337,10 @@ export function EmotionBubble() {
     // Click handler
     const handleClick = (event: MouseEvent) => {
       if (!cameraRef.current) return;
+      
+      if (!raycasterRef.current) {
+        raycasterRef.current = new THREE.Raycaster();
+      }
 
       const mouse = new THREE.Vector2(
         (event.clientX / window.innerWidth) * 2 - 1,

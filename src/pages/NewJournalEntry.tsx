@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { BackButton } from '../components/BackButton';
 import { JournalEntryCard } from '../components/JournalEntryCard';
 import { detectMood } from '../services/claudeService';
-import { MOODS, type Mood, type JournalEntry } from '../types';
+import { MOODS, type JournalEntry } from '../types';
 import './NewJournalEntry.css';
 
 type SortOption = 'date-desc' | 'date-asc' | 'mood';
@@ -31,14 +31,12 @@ declare global {
 
 export function NewJournalEntry() {
   const [entryText, setEntryText] = useState('');
-  const [detectedMood, setDetectedMood] = useState<Mood | null>(null);
-  const [isDetecting, setIsDetecting] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [saved, setSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>('date-desc');
-  const detectionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load entries from localStorage
   useEffect(() => {
@@ -103,35 +101,6 @@ export function NewJournalEntry() {
     }
   }, []);
 
-  // Auto-detect mood when text changes (with debounce)
-  useEffect(() => {
-    if (detectionTimeoutRef.current) {
-      clearTimeout(detectionTimeoutRef.current);
-    }
-
-    if (entryText.trim().length > 20) {
-      setIsDetecting(true);
-      detectionTimeoutRef.current = setTimeout(async () => {
-        const result = await detectMood(entryText);
-        if ('mood' in result) {
-          const mood = MOODS.find(m => m.id === result.mood);
-          if (mood) {
-            setDetectedMood(mood);
-          }
-        }
-        setIsDetecting(false);
-      }, 1500); // Wait 1.5 seconds after user stops typing
-    } else {
-      setDetectedMood(null);
-      setIsDetecting(false);
-    }
-
-    return () => {
-      if (detectionTimeoutRef.current) {
-        clearTimeout(detectionTimeoutRef.current);
-      }
-    };
-  }, [entryText]);
 
   const toggleListening = () => {
     if (!recognition) {
@@ -148,36 +117,55 @@ export function NewJournalEntry() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!entryText.trim()) {
       alert('Please write something before saving.');
       return;
     }
 
-    // Save to localStorage
-    const stored = JSON.parse(localStorage.getItem('journalEntries') || '[]');
-    const newEntry = {
-      id: Date.now().toString(),
-      content: entryText,
-      mood: detectedMood || MOODS[0],
-      timestamp: new Date().toISOString(),
-      position: {
-        x: (Math.random() - 0.5) * 5,
-        y: (Math.random() - 0.5) * 5,
-        z: (Math.random() - 0.5) * 2,
-      }
-    };
-    stored.unshift(newEntry);
-    localStorage.setItem('journalEntries', JSON.stringify(stored));
+    setIsSaving(true);
 
-    // Reload entries and reset form
-    loadEntries();
-    setEntryText('');
-    setDetectedMood(null);
-    setSaved(true);
-    setTimeout(() => {
-      setSaved(false);
-    }, 2000);
+    try {
+      // Detect mood when saving
+      const result = await detectMood(entryText);
+      let mood = MOODS[0]; // Default to first mood
+
+      if ('mood' in result) {
+        const foundMood = MOODS.find(m => m.id === result.mood);
+        if (foundMood) {
+          mood = foundMood;
+        }
+      }
+
+      // Save to localStorage
+      const stored = JSON.parse(localStorage.getItem('journalEntries') || '[]');
+      const newEntry = {
+        id: Date.now().toString(),
+        content: entryText,
+        mood: mood,
+        timestamp: new Date().toISOString(),
+        position: {
+          x: (Math.random() - 0.5) * 5,
+          y: (Math.random() - 0.5) * 5,
+          z: (Math.random() - 0.5) * 2,
+        }
+      };
+      stored.unshift(newEntry);
+      localStorage.setItem('journalEntries', JSON.stringify(stored));
+
+      // Reload entries and reset form
+      loadEntries();
+      setEntryText('');
+      setSaved(true);
+      setTimeout(() => {
+        setSaved(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Error saving entry:', error);
+      alert('Failed to save entry. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Sort entries
@@ -210,32 +198,7 @@ export function NewJournalEntry() {
               placeholder="Start writing or use the microphone to speak your thoughts..."
               value={entryText}
               onChange={(e) => setEntryText(e.target.value)}
-              style={{
-                borderColor: detectedMood ? `${detectedMood.color}80` : 'rgba(255, 182, 193, 0.3)',
-                boxShadow: detectedMood ? `0 0 30px ${detectedMood.color}40` : 'none',
-              }}
             />
-            
-            <div className="mood-indicator">
-              {isDetecting && (
-                <div className="detecting-mood">
-                  <span className="spinner"></span>
-                  <span>Detecting mood...</span>
-                </div>
-              )}
-              {detectedMood && !isDetecting && (
-                <div 
-                  className="detected-mood"
-                  style={{
-                    background: `${detectedMood.color}30`,
-                    borderColor: detectedMood.color,
-                  }}
-                >
-                  <span className="mood-emoji">{detectedMood.emoji}</span>
-                  <span className="mood-name">{detectedMood.name}</span>
-                </div>
-              )}
-            </div>
           </div>
 
           <div className="action-buttons">
@@ -251,15 +214,9 @@ export function NewJournalEntry() {
             <button
               className="save-button"
               onClick={handleSave}
-              disabled={!entryText.trim() || saved}
-              style={{
-                background: detectedMood
-                  ? `linear-gradient(135deg, ${detectedMood.color} 0%, ${detectedMood.color}dd 100%)`
-                  : 'linear-gradient(135deg, #ffb6c1 0%, #e6e6fa 100%)',
-                opacity: saved ? 0.7 : 1,
-              }}
+              disabled={!entryText.trim() || saved || isSaving}
             >
-              {saved ? '✓ Saved!' : 'Save Entry'}
+              {isSaving ? 'Saving...' : saved ? '✓ Saved!' : 'Save Entry'}
             </button>
           </div>
         </div>

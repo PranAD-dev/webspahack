@@ -1,0 +1,251 @@
+.glow-card-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  perspective: 2000px;
+}
+
+.unlock-animation {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.sparkles {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.sparkle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #ffb6c1 0%, transparent 70%);
+  border-radius: 50%;
+  animation: sparkleOut 1.5s ease-out forwards;
+  animation-delay: var(--delay);
+  transform-origin: center;
+}
+
+@keyframes sparkleOut {
+  0% {
+    transform: translate(-50%, -50%) translateX(0) scale(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateX(calc(150px * cos(var(--angle)))) translateY(calc(150px * sin(var(--angle)))) scale(1);
+  }
+  100% {
+    transform: translate(-50%, -50%) translateX(calc(200px * cos(var(--angle)))) translateY(calc(200px * sin(var(--angle)))) scale(0);
+    opacity: 0;
+  }
+}
+
+.glow-card {
+  position: relative;
+  width: 350px;
+  height: 500px;
+  background: linear-gradient(135deg, #ffb6c1 0%, #e6e6fa 25%, #b0e0e6 50%, #f0e68c 75%, #dda0dd 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+  border-radius: 30px;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 30px 100px rgba(255, 182, 193, 0.4),
+    0 0 0 2px rgba(255, 255, 255, 0.3),
+    inset 0 0 60px rgba(255, 255, 255, 0.2);
+  transform-style: preserve-3d;
+  animation: cardFloat 6s ease-in-out infinite, gradientShift 8s ease infinite;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes cardFloat {
+  0%, 100% {
+    transform: translateY(0) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateY(2deg);
+  }
+}
+
+.glow-card:hover {
+  transform: translateY(-15px) scale(1.05) rotateY(5deg);
+  box-shadow: 
+    0 40px 120px rgba(255, 182, 193, 0.5),
+    0 0 0 3px rgba(255, 255, 255, 0.4),
+    inset 0 0 80px rgba(255, 255, 255, 0.3);
+}
+
+.card-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 182, 193, 0.3) 0%, transparent 70%);
+  animation: glowPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+.card-content-inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  width: 100%;
+}
+
+.card-icon {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  animation: iconPulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.5));
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.card-title {
+  font-size: 3rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  margin: 0 0 30px 0;
+}
+
+.card-month {
+  font-size: 2.5rem;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 10px;
+}
+
+.card-year {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+}
+
+.card-badge {
+  display: inline-block;
+  padding: 12px 30px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: rgba(100, 80, 120, 0.9);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  animation: badgeShine 2s ease-in-out infinite;
+}
+
+@keyframes badgeShine {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(255, 182, 193, 0.4);
+  }
+}
+
+.collectible-text {
+  margin-top: 30px;
+  font-size: 1.2rem;
+  color: rgba(100, 80, 120, 0.9);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  text-align: center;
+  animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.glow-card-container.unlocked .glow-card {
+  animation: unlockReveal 1s ease-out, cardFloat 6s ease-in-out infinite 1s, gradientShift 8s ease infinite;
+}
+
+@keyframes unlockReveal {
+  0% {
+    transform: scale(0) rotateY(180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1) rotateY(90deg);
+  }
+  100% {
+    transform: scale(1) rotateY(0deg);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .glow-card {
+    width: 280px;
+    height: 400px;
+    padding: 30px;
+  }
+  
+  .card-title {
+    font-size: 2rem;
+  }
+  
+  .card-month {
+    font-size: 2rem;
+  }
+}
+

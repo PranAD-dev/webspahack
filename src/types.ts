@@ -14,12 +14,12 @@ export type JournalEntry = {
 };
 
 export const MOODS: Mood[] = [
-  { id: 'calm', name: 'Calm', color: '#60A5FA', emoji: '😌' },
-  { id: 'happy', name: 'Happy', color: '#FBBF24', emoji: '😊' },
-  { id: 'overwhelmed', name: 'Overwhelmed', color: '#A78BFA', emoji: '😵' },
-  { id: 'sad', name: 'Sad', color: '#3B82F6', emoji: '😢' },
-  { id: 'anxious', name: 'Anxious', color: '#F87171', emoji: '😰' },
-  { id: 'grateful', name: 'Grateful', color: '#34D399', emoji: '🙏' },
-  { id: 'excited', name: 'Excited', color: '#FB923C', emoji: '🤩' },
-  { id: 'reflective', name: 'Reflective', color: '#818CF8', emoji: '🤔' },
+  { id: 'calm', name: 'Calm', color: '#b0e0e6', emoji: '😌' },
+  { id: 'happy', name: 'Happy', color: '#f0e68c', emoji: '😊' },
+  { id: 'overwhelmed', name: 'Overwhelmed', color: '#dda0dd', emoji: '😵' },
+  { id: 'sad', name: 'Sad', color: '#e6e6fa', emoji: '😢' },
+  { id: 'anxious', name: 'Anxious', color: '#ffb6c1', emoji: '😰' },
+  { id: 'grateful', name: 'Grateful', color: '#98d8c8', emoji: '🙏' },
+  { id: 'excited', name: 'Excited', color: '#ffdab9', emoji: '🤩' },
+  { id: 'reflective', name: 'Reflective', color: '#e6e6fa', emoji: '🤔' },
 ];

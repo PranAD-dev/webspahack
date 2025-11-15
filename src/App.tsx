@@ -2,12 +2,18 @@ import { useState } from 'react'
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SecondPage from "./SecondPage";
+import { LandingPage } from './pages/LandingPage';
+import { FeatureSelection } from './pages/FeatureSelection';
+import { NewJournalEntry } from './pages/NewJournalEntry';
+import { MoodWrap } from './pages/MoodWrap';
+import { BackButton } from './components/BackButton';
 import type { JournalEntry, Mood } from './types';
 import { MoodSelector } from './components/MoodSelector';
 import { VoiceInput } from './components/VoiceInput';
 import { SpatialGallery } from './components/SpatialGallery';
 import { JournalEntryCard } from './components/JournalEntryCard';
 import { JournalEntryScene } from './pages/JournalEntryScene';
+import { AIAssistant } from './components/AIAssistant';
 
 function JournalApp() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
@@ -89,6 +95,14 @@ function JournalApp() {
                 />
               </div>
 
+              <AIAssistant
+                mood={currentMood}
+                entryText={currentText}
+                onSuggestionSelect={(suggestion) => {
+                  setCurrentText(prev => prev ? `${prev}\n\n${suggestion}` : suggestion);
+                }}
+              />
+
               <button
                 className="save-button"
                 onClick={handleSaveEntry}
@@ -136,9 +150,19 @@ function App() {
   return (
     <Router basename={__XR_ENV_BASE__}>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/features" element={<FeatureSelection />} />
+        <Route path="/journal" element={<NewJournalEntry />} />
+        <Route path="/journal-old" element={<JournalApp />} />
+        <Route path="/mood-wrap" element={<MoodWrap />} />
+        <Route path="/emotion-bubble" element={
+          <div className="coming-soon">
+            <BackButton />
+            <div className="coming-soon-content">Emotion Bubble - Coming Soon</div>
+          </div>
+        } />
         <Route path="/second-page" element={<SecondPage />} />
         <Route path="/entry" element={<JournalEntryScene />} />
-        <Route path="/" element={<JournalApp />} />
       </Routes>
     </Router>
   )

@@ -1,16 +1,38 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* Holographic/Pastel Color Palette */
+  --pastel-pink: #ffb6c1;
+  --pastel-lavender: #e6e6fa;
+  --pastel-blue: #b0e0e6;
+  --pastel-yellow: #f0e68c;
+  --pastel-plum: #dda0dd;
+  --pastel-mint: #98d8c8;
+  --pastel-peach: #ffdab9;
+  --pastel-lavender-light: #f5e6ff;
+  --pastel-blue-light: #e0f2ff;
+  --pastel-pink-light: #ffe6f5;
+  --pastel-peach-light: #fff0e6;
+  --pastel-mint-light: #e6fff5;
+
+  color-scheme: light;
+  color: rgba(60, 60, 80, 0.9);
+  background: linear-gradient(135deg, var(--pastel-lavender-light) 0%, var(--pastel-blue-light) 25%, var(--pastel-pink-light) 50%, var(--pastel-peach-light) 75%, var(--pastel-mint-light) 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 a {
@@ -24,10 +46,10 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  padding: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 h1 {

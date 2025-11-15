@@ -8,7 +8,7 @@ interface SpatialJournalViewProps {
   onEntryClick?: (entry: JournalEntry) => void;
 }
 
-export function SpatialJournalView({ entries, onEntryClick }: SpatialJournalViewProps) {
+export function SpatialJournalView({ entries, onEntryClick: _onEntryClick }: SpatialJournalViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);

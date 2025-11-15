@@ -1,19 +1,40 @@
 import { useState, useEffect } from 'react';
 import './VoiceInput.css';
 
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onresult: (event: any) => void;
+  onerror: (event: any) => void;
+  onend: () => void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: {
+      new (): SpeechRecognition;
+    };
+    webkitSpeechRecognition: {
+      new (): SpeechRecognition;
+    };
+  }
+}
+
 interface VoiceInputProps {
   onTranscript: (text: string) => void;
 }
 
 export function VoiceInput({ onTranscript }: VoiceInputProps) {
   const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      const recognitionInstance = new SpeechRecognition();
+      const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognitionClass();
 
       recognitionInstance.continuous = true;
       recognitionInstance.interimResults = true;
@@ -33,7 +54,6 @@ export function VoiceInput({ onTranscript }: VoiceInputProps) {
         }
 
         const newText = (finalTranscript || interimTranscript).trim();
-        setTranscript(newText);
         onTranscript(newText);
       };
 
@@ -62,7 +82,6 @@ export function VoiceInput({ onTranscript }: VoiceInputProps) {
     } else {
       recognition.start();
       setIsListening(true);
-      setTranscript('');
     }
   };
 

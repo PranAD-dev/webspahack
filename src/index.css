@@ -66,3 +66,39 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* WebSpatial materials for Vision Pro */
+html.is-spatial {
+  background-color: transparent;
+  --xr-background-material: transparent;
+}
+
+html.is-spatial body {
+  background-color: transparent;
+}
+
+html.is-spatial #root {
+  background-color: transparent;
+}
+
+/* Main journal app - keep translucent background */
+html.is-spatial .journal-app {
+  background: linear-gradient(135deg, rgba(10, 10, 10, 0.7) 0%, rgba(26, 26, 46, 0.7) 100%);
+  --xr-background-material: translucent;
+}
+
+/* Spatial 3D view - still transparent */
+html.is-spatial .spatial-view {
+  background: transparent;
+}
+
+html.is-spatial .spatial-gallery {
+  background: transparent;
+  --xr-background-material: transparent;
+}
+
+/* Individual entry scene windows - fully transparent */
+html.is-spatial .journal-entry-scene {
+  background: transparent;
+  --xr-background-material: transparent;
+}

@@ -1,0 +1,126 @@
+.journal-entry-scene {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  /* Default opaque background, will be overridden by is-spatial in index.css */
+}
+
+.floating-panel {
+  max-width: 600px;
+  padding: 48px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid var(--mood-color);
+  border-radius: 24px;
+  box-shadow: 0 0 60px var(--mood-color);
+  backdrop-filter: blur(20px);
+
+  /* WebSpatial depth */
+  position: relative;
+  --xr-back: 100px;
+  --xr-background-material: translucent;
+
+  transform: translateZ(50px);
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateZ(50px) translateY(0px);
+  }
+  50% {
+    transform: translateZ(50px) translateY(-20px);
+  }
+}
+
+.mood-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding: 16px 24px;
+  background: var(--mood-color);
+  border-radius: 50px;
+  width: fit-content;
+
+  /* Add depth to mood badge */
+  position: relative;
+  --xr-back: 120px;
+  transform: translateZ(20px);
+}
+
+.mood-emoji {
+  font-size: 32px;
+}
+
+.mood-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.entry-content-full {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 20px;
+  line-height: 1.8;
+  margin-bottom: 32px;
+  white-space: pre-wrap;
+}
+
+.entry-metadata {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.loading {
+  color: white;
+  font-size: 24px;
+}
+
+.ambient-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--mood-color, #667eea);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: particle-float linear infinite;
+
+  /* Add depth to particles */
+  --xr-back: 80px;
+}
+
+@keyframes particle-float {
+  0% {
+    transform: translateY(0) translateZ(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-100vh) translateZ(50px);
+    opacity: 0;
+  }
+}

@@ -1,0 +1,82 @@
+.journal-entry-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border: 2px solid;
+  border-radius: 20px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+
+  /* WebSpatial depth for floating cards */
+  position: relative;
+  --xr-back: 120px;
+  --xr-background-material: translucent;
+
+  transform-style: preserve-3d;
+  animation: card-float 6s ease-in-out infinite;
+  box-shadow: 0 4px 20px rgba(168, 213, 226, 0.15);
+}
+
+@keyframes card-float {
+  0%, 100% {
+    transform: translateZ(0) rotateY(0deg);
+  }
+  50% {
+    transform: translateZ(15px) rotateY(1deg);
+  }
+}
+
+.journal-entry-card:hover {
+  transform: translateY(-6px) translateZ(50px) scale(1.02);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 30px rgba(168, 213, 226, 0.25);
+  --xr-back: 180px;
+  animation: none;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+.entry-mood {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #2c3e50;
+}
+
+.entry-date {
+  color: rgba(74, 124, 142, 0.6);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.entry-content {
+  color: rgba(44, 62, 80, 0.9);
+  line-height: 1.6;
+  font-size: 15px;
+  max-height: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 12px;
+}
+
+.open-hint {
+  padding-top: 12px;
+  border-top: 1px solid rgba(168, 213, 226, 0.3);
+  font-size: 12px;
+  color: rgba(74, 124, 142, 0.5);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  font-weight: 300;
+}
+
+.journal-entry-card:hover .open-hint {
+  opacity: 1;
+}

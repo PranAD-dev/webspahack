@@ -1,8 +1,28 @@
 {
+  "name": "Spatial Journal",
+  "short_name": "Journal",
+  "description": "Your thoughts deserve space - An XR journaling experience",
   "xr_main_scene": {
     "default_size": {
-      "width": 1000,
+      "width": 1200,
+      "height": 900
+    },
+    "min_size": {
+      "width": 800,
       "height": 600
+    },
+    "max_size": {
+      "width": 1600,
+      "height": 1200
+    }
+  },
+  "xr_scenes": {
+    "entry": {
+      "default_size": {
+        "width": 700,
+        "height": 800
+      },
+      "resizable": true
     }
   }
 }

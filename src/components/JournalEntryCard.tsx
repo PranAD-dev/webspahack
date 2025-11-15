@@ -38,7 +38,7 @@ export function JournalEntryCard({ entry, onClick }: JournalEntryCardProps) {
     >
       <div className="entry-header">
         <span className="entry-mood" style={{ color: entry.mood.color }}>
-          {entry.mood.emoji} {entry.mood.name}
+          {entry.mood.name}
         </span>
         <span className="entry-date">{formattedDate}</span>
       </div>

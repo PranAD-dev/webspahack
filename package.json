@@ -12,6 +12,7 @@
     "simulate:avp": "dotenv -e .env.local -- sh -c 'webspatial-builder run --base=$XR_DEV_SERVER'"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@google/model-viewer": "^4.1.0",
     "@webspatial/core-sdk": "^1.0.4",
     "@webspatial/react-sdk": "^1.0.4",

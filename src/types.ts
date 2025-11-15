@@ -2,7 +2,7 @@ export type Mood = {
   id: string;
   name: string;
   color: string;
-  emoji: string;
+  description: string;
 };
 
 export type JournalEntry = {
@@ -13,13 +13,15 @@ export type JournalEntry = {
   position: { x: number; y: number; z: number };
 };
 
+// Refined mood palette: subtle, desaturated colors without emojis
 export const MOODS: Mood[] = [
-  { id: 'calm', name: 'Calm', color: '#60A5FA', emoji: '😌' },
-  { id: 'happy', name: 'Happy', color: '#FBBF24', emoji: '😊' },
-  { id: 'overwhelmed', name: 'Overwhelmed', color: '#A78BFA', emoji: '😵' },
-  { id: 'sad', name: 'Sad', color: '#3B82F6', emoji: '😢' },
-  { id: 'anxious', name: 'Anxious', color: '#F87171', emoji: '😰' },
-  { id: 'grateful', name: 'Grateful', color: '#34D399', emoji: '🙏' },
-  { id: 'excited', name: 'Excited', color: '#FB923C', emoji: '🤩' },
-  { id: 'reflective', name: 'Reflective', color: '#818CF8', emoji: '🤔' },
+  { id: 'neutral', name: 'Neutral', color: '#A8B5C0', description: 'Balanced and observational' },
+  { id: 'calm', name: 'Calm', color: '#7D9BAF', description: 'Peaceful and centered' },
+  { id: 'reflective', name: 'Reflective', color: '#9B95B8', description: 'Thoughtful and introspective' },
+  { id: 'energized', name: 'Energized', color: '#D4A574', description: 'Motivated and active' },
+  { id: 'melancholic', name: 'Melancholic', color: '#6B7C8F', description: 'Contemplative and somber' },
+  { id: 'hopeful', name: 'Hopeful', color: '#8FB89C', description: 'Optimistic and looking forward' },
+  { id: 'anxious', name: 'Anxious', color: '#9B8FA8', description: 'Worried or uncertain' },
+  { id: 'content', name: 'Content', color: '#A5B599', description: 'Satisfied and at peace' },
+  { id: 'joyful', name: 'Joyful', color: '#D4B88A', description: 'Happy and uplifted' },
 ];

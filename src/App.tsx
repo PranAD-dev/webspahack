@@ -2,41 +2,53 @@ import { useState } from 'react'
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SecondPage from "./SecondPage";
-import type { JournalEntry, Mood } from './types';
-import { MoodSelector } from './components/MoodSelector';
+import type { JournalEntry } from './types';
 import { VoiceInput } from './components/VoiceInput';
 import { SpatialGallery } from './components/SpatialGallery';
 import { JournalEntryCard } from './components/JournalEntryCard';
 import { JournalEntryScene } from './pages/JournalEntryScene';
+import { detectMood } from './services/moodDetection';
 
 function JournalApp() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
-  const [currentMood, setCurrentMood] = useState<Mood | null>(null);
   const [currentText, setCurrentText] = useState('');
   const [view, setView] = useState<'create' | 'list' | 'spatial'>('create');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const handleSaveEntry = () => {
-    if (!currentMood || !currentText.trim()) {
-      alert('Please select a mood and add some content');
+  const handleSaveEntry = async () => {
+    if (!currentText.trim()) {
+      alert('Please add some content to save');
       return;
     }
 
-    const newEntry: JournalEntry = {
-      id: Date.now().toString(),
-      content: currentText,
-      mood: currentMood,
-      timestamp: new Date(),
-      position: {
-        x: (Math.random() - 0.5) * 5,
-        y: (Math.random() - 0.5) * 5,
-        z: (Math.random() - 0.5) * 2,
-      }
-    };
+    // Show analyzing state
+    setIsAnalyzing(true);
 
-    setEntries([newEntry, ...entries]);
-    setCurrentText('');
-    setCurrentMood(null);
-    setView('list');
+    try {
+      // Detect mood when saving
+      const result = await detectMood(currentText);
+
+      const newEntry: JournalEntry = {
+        id: Date.now().toString(),
+        content: currentText,
+        mood: result.mood,
+        timestamp: new Date(),
+        position: {
+          x: (Math.random() - 0.5) * 5,
+          y: (Math.random() - 0.5) * 5,
+          z: (Math.random() - 0.5) * 2,
+        }
+      };
+
+      setEntries([newEntry, ...entries]);
+      setCurrentText('');
+      setIsAnalyzing(false);
+      setView('list');
+    } catch (error) {
+      console.error('Failed to analyze mood:', error);
+      alert('Failed to analyze mood. Please try again.');
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -68,38 +80,24 @@ function JournalApp() {
       <main className="app-main">
         {view === 'create' && (
           <div className="create-view">
-            <MoodSelector
-              selectedMood={currentMood}
-              onSelectMood={setCurrentMood}
-            />
-
             <div className="input-section">
               <VoiceInput onTranscript={setCurrentText} />
 
               <div className="text-input-container">
                 <textarea
                   className="journal-textarea"
-                  placeholder="Or type your thoughts here..."
+                  placeholder="Write your thoughts here... (AI will analyze your mood when you save)"
                   value={currentText}
                   onChange={(e) => setCurrentText(e.target.value)}
-                  style={{
-                    borderColor: currentMood?.color || 'rgba(255, 255, 255, 0.2)',
-                    boxShadow: currentMood ? `0 0 20px ${currentMood.color}40` : 'none'
-                  }}
                 />
               </div>
 
               <button
                 className="save-button"
                 onClick={handleSaveEntry}
-                disabled={!currentMood || !currentText.trim()}
-                style={{
-                  background: currentMood
-                    ? `linear-gradient(135deg, ${currentMood.color} 0%, ${currentMood.color}dd 100%)`
-                    : 'rgba(255, 255, 255, 0.1)'
-                }}
+                disabled={!currentText.trim() || isAnalyzing}
               >
-                Save Entry
+                {isAnalyzing ? 'Analyzing mood...' : 'Save Entry'}
               </button>
             </div>
           </div>

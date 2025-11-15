@@ -40,12 +40,12 @@
 
 .mood-badge {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 6px;
   margin-bottom: 32px;
   padding: 16px 24px;
   background: var(--mood-color);
-  border-radius: 50px;
+  border-radius: 16px;
   width: fit-content;
 
   /* Add depth to mood badge */
@@ -54,15 +54,19 @@
   transform: translateZ(20px);
 }
 
-.mood-emoji {
-  font-size: 32px;
+.mood-name {
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
 }
 
-.mood-name {
-  font-size: 20px;
-  font-weight: 700;
-  color: white;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+.mood-description {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  font-style: italic;
 }
 
 .entry-content-full {

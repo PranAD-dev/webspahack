@@ -40,8 +40,8 @@ export function JournalEntryScene() {
     >
       <div className="floating-panel">
         <div className="mood-badge">
-          <span className="mood-emoji">{entry.mood.emoji}</span>
           <span className="mood-name">{entry.mood.name}</span>
+          <span className="mood-description">{entry.mood.description}</span>
         </div>
 
         <div className="entry-content-full">

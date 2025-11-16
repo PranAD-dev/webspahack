@@ -32,26 +32,20 @@ ${stats.topMood ? `✨ Top emotion: ${stats.topMood.name}` : ''}
   return (
     <div className="slide-base share-journey-slide">
       <div className="slide-content">
-        <div className="share-icon">📤</div>
-        <h2 className="slide-subtitle">Share Your Soul Summary</h2>
-        <div className="share-stats-card">
-          <div className="share-stat">
-            <div className="share-number">{stats.totalEntries}</div>
-            <div className="share-label">Entries</div>
-          </div>
-          <div className="share-stat">
-            <div className="share-number">{stats.totalWords?.toLocaleString() || 0}</div>
-            <div className="share-label">Words</div>
-          </div>
-          <div className="share-stat">
-            <div className="share-number">{stats.longestStreak || 0}</div>
-            <div className="share-label">Day Streak</div>
-          </div>
-        </div>
+        <div className="rocket-icon">🚀</div>
+        <h2 className="slide-subtitle">2026 Awaits</h2>
+        <p className="slide-description" style={{ marginBottom: '20px' }}>
+          You've grown so much
+        </p>
+        <p className="slide-description" style={{ marginBottom: '30px', fontSize: '1rem' }}>
+          Key {year} takeaway: {stats.topMood ? `Your year was defined by ${stats.topMood.name.toLowerCase()}` : 'Your journey of self-discovery continues'}
+        </p>
+        <p className="slide-description" style={{ marginBottom: '30px', fontSize: '1.1rem', fontWeight: 500 }}>
+          Ready for your next chapter? 🚀
+        </p>
         <button className="share-button" onClick={handleShare}>
-          Share Your {year} Soul Summary
+          Share your {year} journey
         </button>
-        <p className="slide-description">Share your Soul Summary!</p>
       </div>
     </div>
   );

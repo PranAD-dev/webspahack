@@ -18,7 +18,7 @@ export function TopEmotionSlide({ stats }: TopEmotionSlideProps) {
       }}
     >
       <div className="slide-content">
-        <h2 className="slide-subtitle">This period, you felt mostly</h2>
+        <h2 className="slide-subtitle">This week, you felt mostly</h2>
         <div className="emotion-display">
           <div className="emotion-emoji">{stats.topMood.emoji}</div>
           <div className="emotion-name">{stats.topMood.name.toUpperCase()}</div>

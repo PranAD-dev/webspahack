@@ -23,8 +23,8 @@ export function PeakMomentSlide({ stats }: PeakMomentSlideProps) {
     >
       <div className="slide-content">
         <div className="sun-icon">☀️</div>
-        <h2 className="slide-subtitle">Your brightest moment</h2>
-        <div className="peak-day">{dayName}</div>
+        <h2 className="slide-subtitle">Your brightest moment was</h2>
+        <div className="peak-day">{dayName} ☀️</div>
         <div className="peak-date">{dateStr}</div>
         <div className="quote-box">
           <p className="quote-text">"{quote}"</p>

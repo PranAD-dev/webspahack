@@ -16,9 +16,12 @@ export function WordCloudSlide({ stats, monthName }: WordCloudSlideProps) {
   return (
     <div className="slide-base word-cloud-slide">
       <div className="slide-content">
-        <h2 className="slide-subtitle">Your {monthName} Words</h2>
+        <h2 className="slide-subtitle">Words That Matter</h2>
+        <p className="slide-description" style={{ marginBottom: '20px', fontSize: '0.9rem' }}>
+          These words defined your {monthName}
+        </p>
         <div className="word-cloud">
-          {stats.wordCloud.slice(0, 15).map((word, index) => {
+          {stats.wordCloud.slice(0, 10).map((word, index) => {
             const size = minSize + (word.count / maxCount) * (maxSize - minSize);
             const rotation = (Math.random() - 0.5) * 20;
             return (

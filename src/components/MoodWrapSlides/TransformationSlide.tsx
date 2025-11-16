@@ -14,8 +14,8 @@ export function TransformationSlide({ stats }: TransformationSlideProps) {
   return (
     <div className="slide-base transformation-slide">
       <div className="slide-content">
-        <div className="sparkle-icon">✨</div>
-        <h2 className="slide-subtitle">Transformation Moment</h2>
+        <div className="sparkle-icon">💪</div>
+        <h2 className="slide-subtitle">From struggle to strength 💪</h2>
         <div className="transformation-timeline">
           <div className="timeline-start">
             <div className="timeline-date">{startDate}</div>

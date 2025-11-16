@@ -45,10 +45,10 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
   const [currentSlide, setCurrentSlide] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [skipToEnd, setSkipToEnd] = useState(true);
   const dragStartX = useRef<number>(0);
   const dragStartY = useRef<number>(0);
   const lastTapTime = useRef<number>(0);
+  const hasMoved = useRef<boolean>(false);
 
   const getMonthName = (date: Date) => {
     return date.toLocaleDateString('en-US', { month: 'long' });
@@ -63,100 +63,79 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
   const getYear = () => stats.dateRange.start.getFullYear();
   const getNextYear = () => getYear() + 1;
 
-  const slides = timePeriod === 'yearly' ? [
-    <YearlyHeroSlide key="hero" year={getYear()} />,
-    <YearInNumbersSlide key="numbers" stats={stats} />,
-    ...(stats.top3Emotions && stats.top3Emotions.length > 0 ? [<Top3EmotionsSlide key="top3" stats={stats} />] : []),
-    ...(stats.monthlyBreakdown && stats.monthlyBreakdown.length > 0 ? [<EmotionTimelineSlide key="timeline" stats={stats} />] : []),
-    ...(stats.mostTransformativeMonth ? [<TransformativeMonthSlide key="transformative" stats={stats} />] : []),
-    ...(stats.peakHappinessMonth ? [<PeakHappinessSlide key="happiness" stats={stats} />] : []),
-    ...(stats.hardestMonth ? [<HardestMonthSlide key="hardest" stats={stats} />] : []),
-    ...(stats.longestStreak && stats.streakDates ? [<LongestStreakYearlySlide key="streak" stats={stats} />] : []),
-    ...(stats.wordCloud && stats.wordCloud.length > 0 ? [<WordsThatDefinedSlide key="words" stats={stats} year={getYear()} />] : []),
-    ...(stats.emotionalGrowth ? [<EmotionalGrowthSlide key="growth" stats={stats} />] : []),
-    ...(stats.percentile ? [<ConsistencyBadgeSlide key="badge" stats={stats} />] : []),
-    ...(stats.gratitudeCount ? [<GratitudeCounterSlide key="gratitude" stats={stats} />] : []),
-    ...(stats.mostReflectiveEntry ? [<MostReflectiveDaySlide key="reflective" stats={stats} />] : []),
-    <YearTransitionSlide key="transition" currentYear={getYear()} nextYear={getNextYear()} />,
-    <ShareJourneySlide key="share" stats={stats} year={getYear()} />,
-    <div key="glowcard" className="glowcard-slide">
-      <GlowCard 
-        monthName="Year" 
-        year={getYear()}
-      />
-    </div>
-  ].filter(Boolean) : timePeriod === 'monthly' ? [
-    <MonthlyHeroSlide key="hero" monthName={getMonthName(stats.dateRange.start)} />,
-    <ByTheNumbersSlide key="numbers" stats={stats} />,
-    <EmotionEvolutionSlide key="evolution" stats={stats} />,
-    <DominantEmotionSlide key="dominant" stats={stats} monthName={getMonthName(stats.dateRange.start)} />,
-    <BreakdownSlide key="breakdown" stats={stats} />,
-    <StreakSlide key="streak" stats={stats} />,
-    <MostActiveDaySlide key="active-day" stats={stats} />,
-    <WordCloudSlide key="wordcloud" stats={stats} monthName={getMonthName(stats.dateRange.start)} />,
-    ...(stats.transformationMoment ? [<TransformationSlide key="transformation" stats={stats} />] : []),
-    ...(stats.consistencyScore ? [<ConsistencySlide key="consistency" stats={stats} />] : []),
-    <LookingAheadSlide key="ahead" stats={stats} nextMonth={getNextMonthName()} />,
-    <div key="glowcard" className="glowcard-slide">
-      <GlowCard 
-        monthName={getMonthName(stats.dateRange.start)} 
-        year={stats.dateRange.start.getFullYear()}
-      />
-    </div>
-  ].filter(Boolean) : [
-    <HeroSlide key="hero" timePeriod={timePeriod} dateRange={dateRange} />,
-    <EntryCountSlide key="count" stats={stats} />,
-    <TopEmotionSlide key="emotion" stats={stats} />,
-    <BreakdownSlide key="breakdown" stats={stats} />,
-    <PeakMomentSlide key="peak" stats={stats} />,
-    <InsightSlide key="insight" stats={stats} />,
-    <GoalSlide key="goal" stats={stats} />,
+  // Start from scratch - all blank slides with just pastel colored cards
+  const slides = [
+    <div key="slide-1" className="slide-base blank-slide"></div>,
+    <div key="slide-2" className="slide-base blank-slide"></div>,
+    <div key="slide-3" className="slide-base blank-slide"></div>,
+    <div key="slide-4" className="slide-base blank-slide"></div>,
+    <div key="slide-5" className="slide-base blank-slide"></div>,
   ];
 
   const handleDragStart = (clientX: number, clientY: number) => {
-    setIsDragging(true);
     dragStartX.current = clientX;
     dragStartY.current = clientY;
+    hasMoved.current = false;
+    setIsDragging(false); // Don't set dragging until we actually move
     setDragOffset(0);
   };
 
   const handleDragMove = (clientX: number) => {
-    if (!isDragging) return;
     const offset = clientX - dragStartX.current;
-    setDragOffset(offset);
+    const moveDistance = Math.abs(offset);
+    
+    // Only start dragging if we've moved more than 5px
+    if (moveDistance > 5) {
+      hasMoved.current = true;
+      if (!isDragging) {
+        setIsDragging(true);
+      }
+      setDragOffset(offset);
+    }
   };
 
   const handleDragEnd = () => {
-    if (!isDragging) return;
-    
-    const threshold = 100; // Minimum swipe distance
-    const velocity = Math.abs(dragOffset) / 10; // Simple velocity calculation
-    
-    if (Math.abs(dragOffset) > threshold || velocity > 5) {
-      if (dragOffset > 0 && currentSlide > 0) {
-        // Swipe right - go to previous
-        setCurrentSlide(currentSlide - 1);
-      } else if (dragOffset < 0 && currentSlide < slides.length - 1) {
-        // Swipe left - go to next
-        setCurrentSlide(currentSlide + 1);
+    if (isDragging) {
+      const threshold = 100; // Minimum swipe distance
+      const velocity = Math.abs(dragOffset) / 10; // Simple velocity calculation
+      
+      if (Math.abs(dragOffset) > threshold || velocity > 5) {
+        if (dragOffset > 0 && currentSlide > 0) {
+          // Swipe right - go to previous
+          setCurrentSlide(currentSlide - 1);
+        } else if (dragOffset < 0 && currentSlide < slides.length - 1) {
+          // Swipe left - go to next
+          setCurrentSlide(currentSlide + 1);
+        }
       }
     }
     
-    setIsDragging(false);
-    setDragOffset(0);
+    // Reset drag state after a short delay to allow click events
+    setTimeout(() => {
+      setIsDragging(false);
+      setDragOffset(0);
+      hasMoved.current = false;
+      dragStartX.current = 0;
+    }, 50);
   };
 
   // Mouse events
   const onMouseDown = (e: React.MouseEvent) => {
+    // Don't prevent default - let click events work
     handleDragStart(e.clientX, e.clientY);
   };
 
   const onMouseMove = (e: React.MouseEvent) => {
-    handleDragMove(e.clientX);
+    if (dragStartX.current !== 0) {
+      handleDragMove(e.clientX);
+    }
   };
 
-  const onMouseUp = () => {
+  const onMouseUp = (e: React.MouseEvent) => {
+    const wasDragging = isDragging;
+    const didMove = hasMoved.current;
     handleDragEnd();
+    // Don't handle click here - let onClick handle it
   };
 
   // Touch events
@@ -170,8 +149,14 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
     handleDragMove(touch.clientX);
   };
 
-  const onTouchEnd = () => {
+  const onTouchEnd = (e?: React.TouchEvent) => {
+    const wasDragging = isDragging;
+    const currentDragOffset = dragOffset;
     handleDragEnd();
+    // If it wasn't a drag, treat it as a tap
+    if (!wasDragging && e && Math.abs(currentDragOffset) < 10) {
+      setTimeout(() => handleTap(e), 100);
+    }
   };
 
   // Prevent default drag behavior
@@ -202,34 +187,36 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
   // };
 
   const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
-    // Don't trigger tap if we just finished dragging
-    if (isDragging || Math.abs(dragOffset) > 10) {
+    // Check if we actually dragged (moved more than 10px)
+    if (hasMoved.current || Math.abs(dragOffset) > 10) {
+      console.log('Blocked tap - was a drag', { hasMoved: hasMoved.current, dragOffset });
       return;
     }
     
     // Prevent tap if clicking on interactive elements
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('a') || target.closest('.carousel-actions')) {
+    if (
+      target.closest('button') || 
+      target.closest('a') || 
+      target.closest('.carousel-actions') ||
+      target.closest('.slide-indicators') ||
+      target.closest('.swipe-hint') ||
+      target.closest('.tap-hint')
+    ) {
+      console.log('Blocked tap - clicked on interactive element');
       return;
     }
     
-    const now = Date.now();
-    const timeSinceLastTap = now - lastTapTime.current;
-    
-    // Single tap - go to next
-    if (timeSinceLastTap > 300) {
-      goToNext();
-      lastTapTime.current = now;
-    }
+    console.log('Tap detected - going to next slide');
+    // Go to next slide on tap/click
+    e.preventDefault();
+    e.stopPropagation();
+    goToNext();
   };
 
   const handleSkip = () => {
-    if (skipToEnd) {
-      setCurrentSlide(slides.length - 1);
-    } else {
-      setCurrentSlide(0);
-    }
-    setSkipToEnd(!skipToEnd);
+    // Always skip to the end (last slide)
+    setCurrentSlide(slides.length - 1);
   };
 
   const handleReplay = () => {
@@ -338,74 +325,88 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
                 pointerEvents: isActive ? 'auto' : 'none',
               }}
               onMouseDown={isActive ? onMouseDown : undefined}
-              onMouseMove={isActive && isDragging ? onMouseMove : undefined}
+              onMouseMove={isActive ? onMouseMove : undefined}
               onMouseUp={isActive ? onMouseUp : undefined}
-              onMouseLeave={isActive ? onMouseUp : undefined}
+              onMouseLeave={isActive ? (e) => onMouseUp(e) : undefined}
               onTouchStart={isActive ? onTouchStart : undefined}
               onTouchMove={isActive ? onTouchMove : undefined}
-              onTouchEnd={isActive ? onTouchEnd : undefined}
-              onClick={isActive ? (e) => handleTap(e) : undefined}
+              onTouchEnd={isActive ? (e) => onTouchEnd(e) : undefined}
             >
-              <div className="card-content">
+              <div 
+                className="card-content" 
+                onClick={isActive ? (e) => {
+                  // Check if this was a click (not a drag) by checking if we moved
+                  const moved = hasMoved.current || Math.abs(dragOffset) > 10;
+                  if (!moved) {
+                    handleTap(e);
+                  }
+                } : undefined}
+              >
                 {slide}
               </div>
-              {isActive && (
-                <div className="swipe-hint">
-                  <span className="swipe-left">← Swipe</span>
-                  <span className="swipe-right">Swipe →</span>
-                  <span className="tap-hint">or Tap to continue</span>
-                </div>
-              )}
+              {/* Hide all hints for blank slides */}
             </div>
           );
         })}
       </div>
 
-      <div className="carousel-controls">
-        <div className="slide-indicators">
-          {slides.map((_, index) => (
+          {/* Progress dots */}
+          <div className="carousel-controls">
+            <div className="slide-indicators">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  className={`indicator ${currentSlide === index ? 'active' : ''}`}
+                  onClick={() => goToSlide(index)}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Skip button - shown in the middle (when not at the end) */}
+          {currentSlide < slides.length - 1 && (
+            <div className="carousel-actions-middle">
+              <button
+                className="action-button skip-button"
+                onClick={handleSkip}
+                aria-label="Skip to end"
+                title="Skip to end"
+              >
+                ⏭️ Skip to End
+              </button>
+            </div>
+          )}
+
+          {/* Replay button - shown at the end (last slide) */}
+          {currentSlide === slides.length - 1 && (
+            <div className="carousel-actions-end">
+              <button
+                className="action-button replay-button"
+                onClick={handleReplay}
+                aria-label="Replay from beginning"
+                title="Replay from beginning"
+              >
+                🔄 Replay
+              </button>
+            </div>
+          )}
+
+          {/* Share button - always available */}
+          <div className="carousel-actions-share">
             <button
-              key={index}
-              className={`indicator ${currentSlide === index ? 'active' : ''}`}
-              onClick={() => goToSlide(index)}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
-      </div>
+              className="action-button share-button"
+              onClick={handleShareSlide}
+              aria-label="Share this slide"
+              title="Share this slide"
+            >
+              📤 Share
+            </button>
+          </div>
 
-      <div className="carousel-actions">
-        <button 
-          className="action-button skip-button" 
-          onClick={handleSkip}
-          aria-label={skipToEnd ? "Skip to end" : "Go to beginning"}
-          title={skipToEnd ? "Skip to end" : "Go to beginning"}
-        >
-          {skipToEnd ? "⏭️ Skip" : "⏮️ Start"}
-        </button>
-        
-        <button 
-          className="action-button replay-button" 
-          onClick={handleReplay}
-          aria-label="Replay from beginning"
-          title="Replay from beginning"
-        >
-          🔄 Replay
-        </button>
-        
-        <button 
-          className="action-button share-button" 
-          onClick={handleShareSlide}
-          aria-label="Share this slide"
-          title="Share this slide"
-        >
-          📤 Share
-        </button>
-      </div>
-
-      <div className="slide-counter">
-        {currentSlide + 1} / {slides.length}
-      </div>
+          <div className="slide-counter">
+            {currentSlide + 1} / {slides.length}
+          </div>
     </div>
   );
 }

@@ -11,7 +11,10 @@ export function Top3EmotionsSlide({ stats }: Top3EmotionsSlideProps) {
   return (
     <div className="slide-base top3-emotions-slide">
       <div className="slide-content">
-        <h2 className="slide-subtitle">Your Emotional Podium</h2>
+        <h2 className="slide-subtitle">Emotional Podium</h2>
+        <p className="slide-description" style={{ marginBottom: '20px', fontSize: '0.9rem' }}>
+          Top 3 emotions of the year 🥇🥈🥉
+        </p>
         <div className="podium-container">
           {stats.top3Emotions.map((emotion, index) => {
             const position = index === 0 ? 'first' : index === 1 ? 'second' : 'third';

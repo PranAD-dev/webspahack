@@ -25,7 +25,9 @@ export function DominantEmotionSlide({ stats, monthName }: DominantEmotionSlideP
           <div className="emotion-emoji">{stats.topMood.emoji}</div>
           <div className="emotion-name">{stats.topMood.name.toUpperCase()}</div>
         </div>
+        <div className="emotion-subtitle">month {stats.topMood.emoji}</div>
         <div className="percentage-badge">{moodData?.percentage || 0}%</div>
+        <p className="slide-description">of your entries</p>
         <p className="slide-description">
           You mentioned {stats.topMood.name.toLowerCase()} <strong>{count}</strong> times
         </p>

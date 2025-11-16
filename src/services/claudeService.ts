@@ -518,3 +518,124 @@ ONLY output the numbered list, nothing else. No explanations, no intro text, jus
   }
 }
 
+/**
+ * Generate AI feedback for a journal entry
+ * Provides conversational, supportive feedback on emotions, strengths, and growth areas
+ */
+export async function generateJournalFeedback(
+  entryContent: string,
+  detectedMood: string,
+  entryTitle?: string
+): Promise<ClaudeResponse> {
+  try {
+    // Import Gemini AI
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    
+    const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!API_KEY) {
+      throw new Error('VITE_GEMINI_API_KEY is not set. Please check your .env file.');
+    }
+    
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    
+    // Try different model names in order of preference
+    const modelNames = [
+      'gemini-2.0-flash-exp',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro',
+      'models/gemini-2.0-flash-exp',
+      'models/gemini-2.0-flash',
+    ];
+    
+    let model;
+    let lastError: any = null;
+    
+    for (const modelName of modelNames) {
+      try {
+        model = genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: {
+            temperature: 0.7, // Slightly higher for more conversational tone
+            topP: 0.9,
+            topK: 40,
+          },
+        });
+        console.log(`✅ Using model: ${modelName} for journal feedback`);
+        break;
+      } catch (error: any) {
+        console.warn(`⚠️ Model ${modelName} failed:`, error.message);
+        lastError = error;
+        if (error.message?.includes('404') || error.message?.includes('not found')) {
+          continue;
+        } else {
+          throw error;
+        }
+      }
+    }
+    
+    if (!model) {
+      throw lastError || new Error('All model attempts failed for journal feedback');
+    }
+
+    const prompt = `You are a compassionate, supportive AI companion helping someone reflect on their journal entry. Your role is to provide warm, conversational feedback - NOT to judge or tell them what's right or wrong.
+
+Journal Entry${entryTitle ? ` (Title: "${entryTitle}")` : ''}:
+"${entryContent}"
+
+Detected Emotion: ${detectedMood}
+
+Provide feedback in a warm, conversational chat style (like talking to a friend). Structure your response as follows:
+
+1. **Acknowledge their emotions** - Validate what they're feeling. Show you understand their emotional state.
+
+2. **What they did well** - Highlight positive aspects:
+   - Self-awareness
+   - Willingness to reflect
+   - Honesty and vulnerability
+   - Any growth or insights you notice
+   - Strength in expressing themselves
+
+3. **Gentle suggestions for growth** (not "what you did wrong"):
+   - Kind suggestions for self-care or reflection
+   - Questions they might consider exploring
+   - Gentle encouragement for areas they might want to explore further
+   - Supportive next steps
+
+Keep it:
+- Conversational and warm (use "you" and "I")
+- Supportive, not judgmental
+- Specific to what they wrote
+- About 2-3 paragraphs total
+- Focused on encouragement and understanding
+
+Start your response directly with the feedback (no intro like "Here's your feedback:"). Write as if you're having a friendly conversation.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const feedbackText = response.text().trim();
+
+    return {
+      content: feedbackText,
+      error: null,
+    };
+  } catch (error: any) {
+    console.error('❌ Error generating journal feedback:', error);
+    
+    let userMessage = 'Failed to generate feedback. ';
+    
+    if (error?.message?.includes('API_KEY') || error?.message?.includes('API key')) {
+      userMessage += 'Please check your VITE_GEMINI_API_KEY in your .env file.';
+    } else if (error?.message?.includes('401') || error?.message?.includes('unauthorized')) {
+      userMessage += 'Invalid or unauthorized API key. Please check your VITE_GEMINI_API_KEY.';
+    } else {
+      userMessage += 'Please try again later.';
+    }
+    
+    return {
+      content: '',
+      error: userMessage,
+    };
+  }
+}
+

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BackButton } from '../components/BackButton';
 import { JournalEntryCard } from '../components/JournalEntryCard';
 import { JournalPrompts } from '../components/JournalPrompts';
+import { AIFeedback } from '../components/AIFeedback';
 import { detectMood, generateJournalTitle } from '../services/claudeService';
 import { MOODS, type JournalEntry } from '../types';
 import './NewJournalEntry.css';
@@ -42,6 +43,8 @@ export function NewJournalEntry() {
   const [titleGenerationProgress, setTitleGenerationProgress] = useState({ current: 0, total: 0 });
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>('date-desc');
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackEntry, setFeedbackEntry] = useState<{ content: string; mood: string; title?: string } | null>(null);
 
   // Load entries from localStorage
   useEffect(() => {
@@ -161,6 +164,16 @@ export function NewJournalEntry() {
 
       // Reload entries and reset form
       loadEntries();
+      
+      // Show AI feedback
+      setFeedbackEntry({
+        content: entryText,
+        mood: mood.name,
+        title: entryTitle.trim() || undefined,
+      });
+      setShowFeedback(true);
+      
+      // Reset form
       setEntryText('');
       setEntryTitle('');
       setSaved(true);
@@ -346,6 +359,19 @@ export function NewJournalEntry() {
             </button>
           </div>
         </div>
+
+        {/* AI Feedback Section */}
+        {showFeedback && feedbackEntry && (
+          <AIFeedback
+            entryContent={feedbackEntry.content}
+            detectedMood={feedbackEntry.mood}
+            entryTitle={feedbackEntry.title}
+            onClose={() => {
+              setShowFeedback(false);
+              setFeedbackEntry(null);
+            }}
+          />
+        )}
 
           {/* Past Entries */}
           <div className="past-entries-section">

@@ -7,6 +7,8 @@
   height: 700px;
   user-select: none;
   -webkit-user-select: none;
+  padding-bottom: 120px; /* Space for buttons */
+  overflow: visible; /* Allow buttons to be visible */
 }
 
 .cards-stack {
@@ -14,6 +16,7 @@
   width: 100%;
   height: 100%;
   perspective: 1500px;
+  overflow: visible; /* Allow buttons to be visible outside */
 }
 
 .floating-card {
@@ -24,10 +27,21 @@
   height: 100%;
   transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
               opacity 0.5s ease,
-              z-index 0.5s ease;
+              z-index 0.5s ease,
+              box-shadow 0.3s ease;
   transform-style: preserve-3d;
   cursor: grab;
   will-change: transform;
+  border: none;
+  outline: none;
+}
+
+.floating-card.active {
+  cursor: grab;
+}
+
+.floating-card.active:hover {
+  transform: translateY(-8px) !important;
 }
 
 .floating-card:active {
@@ -42,20 +56,133 @@
   width: 100%;
   height: 100%;
   border-radius: 30px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  box-shadow: 
-    0 20px 60px rgba(255, 182, 193, 0.2),
-    0 0 0 1px rgba(255, 182, 193, 0.1);
+  /* Simple solid pastel background - no gradient animation for blank cards */
+  background: rgba(255, 182, 193, 0.7);
+  backdrop-filter: blur(15px);
+  box-shadow:
+    0 20px 60px rgba(255, 182, 193, 0.3);
   overflow: hidden;
+  overflow-y: auto;
   transform-style: preserve-3d;
   backface-visibility: hidden;
+  position: relative;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  border: none;
+  outline: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* Ensure proper clipping to prevent edge artifacts */
+  -webkit-mask-image: -webkit-radial-gradient(white, white);
+  mask-image: radial-gradient(white, white);
+}
+
+.floating-card.active .card-content {
+  cursor: pointer;
+}
+
+.floating-card.active .card-content:hover {
+  transform: scale(1.01);
+  box-shadow: 0 25px 70px rgba(255, 182, 193, 0.4);
+}
+
+.card-content::before {
+  display: none; /* Hide gradient overlay for blank cards */
+}
+
+.card-content > * {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+/* Ensure slide content allows clicks to pass through to card */
+.card-content .slide-base {
+  pointer-events: none;
+}
+
+.card-content .slide-base > * {
+  pointer-events: auto;
+}
+
+@keyframes holographicShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Different holographic color schemes for variety - using nth-child */
+/* Removed purple from edges to prevent purple line issue */
+.floating-card:nth-child(6n+1) .card-content {
+  background: linear-gradient(135deg, 
+    rgba(255, 182, 193, 0.7) 0%, 
+    rgba(230, 230, 250, 0.7) 20%, 
+    rgba(176, 224, 230, 0.7) 40%, 
+    rgba(240, 230, 140, 0.7) 60%, 
+    rgba(152, 216, 200, 0.7) 80%, 
+    rgba(255, 182, 193, 0.7) 100%);
+  background-size: 400% 400%;
+}
+
+.floating-card:nth-child(6n+2) .card-content {
+  background: linear-gradient(135deg, 
+    rgba(176, 224, 230, 0.7) 0%, 
+    rgba(240, 230, 140, 0.7) 20%, 
+    rgba(255, 182, 193, 0.7) 40%, 
+    rgba(230, 230, 250, 0.7) 60%, 
+    rgba(152, 216, 200, 0.7) 80%, 
+    rgba(176, 224, 230, 0.7) 100%);
+  background-size: 400% 400%;
+}
+
+.floating-card:nth-child(6n+3) .card-content {
+  background: linear-gradient(135deg, 
+    rgba(152, 216, 200, 0.7) 0%, 
+    rgba(240, 230, 140, 0.7) 20%, 
+    rgba(176, 224, 230, 0.7) 40%, 
+    rgba(255, 182, 193, 0.7) 60%, 
+    rgba(230, 230, 250, 0.7) 80%, 
+    rgba(152, 216, 200, 0.7) 100%);
+  background-size: 400% 400%;
+}
+
+.floating-card:nth-child(6n+4) .card-content {
+  background: linear-gradient(135deg, 
+    rgba(240, 230, 140, 0.7) 0%, 
+    rgba(255, 182, 193, 0.7) 20%, 
+    rgba(230, 230, 250, 0.7) 40%, 
+    rgba(152, 216, 200, 0.7) 60%, 
+    rgba(176, 224, 230, 0.7) 80%, 
+    rgba(240, 230, 140, 0.7) 100%);
+  background-size: 400% 400%;
+}
+
+.floating-card:nth-child(6n+5) .card-content {
+  background: linear-gradient(135deg, 
+    rgba(152, 216, 200, 0.7) 0%, 
+    rgba(176, 224, 230, 0.7) 20%, 
+    rgba(255, 182, 193, 0.7) 40%, 
+    rgba(230, 230, 250, 0.7) 60%, 
+    rgba(240, 230, 140, 0.7) 80%, 
+    rgba(152, 216, 200, 0.7) 100%);
+  background-size: 400% 400%;
+}
+
+.floating-card:nth-child(6n+6) .card-content {
+  background: linear-gradient(135deg, 
+    rgba(230, 230, 250, 0.7) 0%, 
+    rgba(152, 216, 200, 0.7) 20%, 
+    rgba(240, 230, 140, 0.7) 40%, 
+    rgba(255, 182, 193, 0.7) 60%, 
+    rgba(176, 224, 230, 0.7) 80%, 
+    rgba(230, 230, 250, 0.7) 100%);
+  background-size: 400% 400%;
 }
 
 .floating-card.active .card-content {
   box-shadow: 
-    0 25px 80px rgba(255, 182, 193, 0.3),
-    0 0 0 1px rgba(255, 182, 193, 0.2);
+    0 25px 80px rgba(255, 182, 193, 0.4),
+    0 0 40px rgba(255, 182, 193, 0.3);
+  animation-duration: 6s;
 }
 
 .swipe-hint {
@@ -63,7 +190,7 @@
   top: 20px;
   left: 0;
   right: 0;
-  display: flex;
+  display: none; /* Hide swipe hints for blank slides */
   justify-content: space-between;
   padding: 0 30px;
   pointer-events: none;
@@ -79,8 +206,8 @@
 .swipe-left,
 .swipe-right {
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  color: rgba(60, 60, 80, 0.9);
+  text-shadow: 0 1px 5px rgba(255, 255, 255, 0.5);
   font-weight: 300;
   letter-spacing: 0.1em;
   animation: pulse 2s ease-in-out infinite;
@@ -92,8 +219,8 @@
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.8);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  color: rgba(60, 60, 80, 0.8);
+  text-shadow: 0 1px 5px rgba(255, 255, 255, 0.5);
   font-weight: 300;
   letter-spacing: 0.05em;
   animation: pulse 2s ease-in-out infinite;
@@ -106,11 +233,16 @@
 }
 
 .carousel-controls {
+  position: absolute;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 30px;
   gap: 20px;
+  z-index: 1000;
+  pointer-events: auto;
 }
 
 .slide-indicators {
@@ -152,25 +284,52 @@
   flex-wrap: wrap;
 }
 
+/* Action buttons container - below dots */
+.carousel-actions-container {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex !important;
+  flex-direction: row; /* Ensure horizontal layout */
+  justify-content: center;
+  align-items: center; /* Center align vertically - all buttons same height */
+  gap: 15px;
+  pointer-events: auto;
+  visibility: visible;
+  opacity: 1;
+  flex-wrap: nowrap; /* Prevent wrapping */
+  width: auto;
+}
+
 .action-button {
   padding: 12px 24px;
   border: none;
   border-radius: 25px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   color: rgba(100, 80, 120, 0.9);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 15px rgba(255, 182, 193, 0.2);
+  box-shadow: 0 4px 15px rgba(255, 182, 193, 0.4);
   letter-spacing: 0.05em;
-  display: flex;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 44px; /* Fixed height for alignment */
-  line-height: 1;
+  height: 44px !important; /* Fixed height for alignment */
+  min-width: 140px; /* Fixed min-width for consistent sizing */
+  line-height: 1 !important;
+  margin: 0 !important; /* Remove any margins */
+  vertical-align: middle !important; /* Ensure vertical alignment */
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  white-space: nowrap; /* Prevent text wrapping */
+  box-sizing: border-box;
 }
 
 .action-button:hover {
@@ -196,12 +355,17 @@
 }
 
 .slide-counter {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
   text-align: center;
-  margin-top: 15px;
   color: rgba(100, 80, 120, 0.7);
   font-size: 0.9rem;
   font-weight: 300;
   letter-spacing: 0.05em;
+  z-index: 100;
+  pointer-events: none;
 }
 
 .glowcard-slide {

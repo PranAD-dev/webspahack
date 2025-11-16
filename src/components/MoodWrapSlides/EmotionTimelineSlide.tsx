@@ -11,7 +11,10 @@ export function EmotionTimelineSlide({ stats }: EmotionTimelineSlideProps) {
   return (
     <div className="slide-base emotion-timeline-slide">
       <div className="slide-content">
-        <h2 className="slide-subtitle">Your Year, Visualized</h2>
+        <h2 className="slide-subtitle">The Year Visualized</h2>
+        <p className="slide-description" style={{ marginBottom: '20px', fontSize: '0.9rem' }}>
+          Your emotional seasons
+        </p>
         <div className="timeline-heatmap">
           {stats.monthlyBreakdown.map((monthData, index) => {
             const monthName = monthData.month.split(' ')[0];

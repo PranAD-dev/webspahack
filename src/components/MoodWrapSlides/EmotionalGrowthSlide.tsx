@@ -11,7 +11,7 @@ export function EmotionalGrowthSlide({ stats }: EmotionalGrowthSlideProps) {
   return (
     <div className="slide-base emotional-growth-slide">
       <div className="slide-content">
-        <h2 className="slide-subtitle">Emotional Growth</h2>
+        <h2 className="slide-subtitle">Evolution Story</h2>
         <div className="growth-comparison">
           <div className="growth-start">
             <div className="growth-label">January You</div>
@@ -27,7 +27,10 @@ export function EmotionalGrowthSlide({ stats }: EmotionalGrowthSlideProps) {
             </div>
           </div>
         </div>
-        <p className="slide-description">Your emotional maturity evolved throughout the year</p>
+        <p className="slide-description">Before/after emotional comparison</p>
+        <p className="slide-description" style={{ marginTop: '10px' }}>
+          Look how far you've come ✨
+        </p>
       </div>
     </div>
   );

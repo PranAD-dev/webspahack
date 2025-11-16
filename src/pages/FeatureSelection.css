@@ -6,9 +6,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(135deg, #f5e6ff 0%, #e0f2ff 25%, #ffe6f5 50%, #fff0e6 75%, #e6fff5 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background: transparent;
 }
 
 @keyframes gradientShift {
@@ -222,21 +220,15 @@
 }
 
 .journal-button::before {
-  background: linear-gradient(135deg, #ffb6c1 0%, #e6e6fa 50%, #b0e0e6 100%);
-  background-size: 200% 200%;
-  animation: gradientShift 5s ease infinite;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .mood-wrap-button::before {
-  background: linear-gradient(135deg, #dda0dd 0%, #ffb6c1 50%, #f0e68c 100%);
-  background-size: 200% 200%;
-  animation: gradientShift 5s ease infinite;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
 .emotion-bubble-button::before {
-  background: linear-gradient(135deg, #b0e0e6 0%, #98d8c8 50%, #e6e6fa 100%);
-  background-size: 200% 200%;
-  animation: gradientShift 5s ease infinite;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
 .feature-button .button-glow {

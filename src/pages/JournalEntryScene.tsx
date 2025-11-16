@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { JournalEntry } from '../types';
 import './JournalEntryScene.css';
 
 export function JournalEntryScene() {
+  const [searchParams] = useSearchParams();
   const [entry, setEntry] = useState<JournalEntry | null>(null);
 
   useEffect(() => {
     // Get entry data from URL params
-    const params = new URLSearchParams(window.location.search);
-    const entryData = params.get('entry');
+    const entryData = searchParams.get('entry');
     if (entryData) {
       try {
         setEntry(JSON.parse(decodeURIComponent(entryData)));
@@ -16,7 +17,7 @@ export function JournalEntryScene() {
         console.error('Failed to parse entry data:', e);
       }
     }
-  }, []);
+  }, [searchParams]);
 
   if (!entry) {
     return <div className="loading">Loading...</div>;

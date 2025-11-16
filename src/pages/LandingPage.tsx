@@ -10,17 +10,6 @@ export function LandingPage() {
 
   return (
     <div className="landing-page">
-      <div className="landing-background">
-        <div className="holographic-gradient"></div>
-        <div className="floating-shapes">
-          <div className="shape shape-1"></div>
-          <div className="shape shape-2"></div>
-          <div className="shape shape-3"></div>
-          <div className="shape shape-4"></div>
-          <div className="shape shape-5"></div>
-        </div>
-      </div>
-      
       <div className="landing-content">
         <h1 className="soulspace-title">
           <span className="title-gradient">SoulSpace</span>

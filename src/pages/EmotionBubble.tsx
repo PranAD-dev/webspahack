@@ -33,8 +33,7 @@ export function EmotionBubble() {
     }
   };
 
-  // Calculate percentage of entries for each mood
-  // This ensures ALL entries are accounted for, including any mood variations
+  
   const calculateMoodPercentages = () => {
     if (entries.length === 0) {
       return {};
@@ -92,7 +91,6 @@ export function EmotionBubble() {
 
   const handleBubbleClick = (bubble: Bubble) => {
     const moodId = bubble.moodId;
-    // Open in a new tab (not a popup window)
     // Use URL constructor to ensure proper URL formatting
     const basePath = typeof __XR_ENV_BASE__ !== 'undefined' ? __XR_ENV_BASE__ : '/';
     const pathSegments = [basePath.replace(/^\/|\/$/g, ''), 'emotion-entries', moodId].filter(Boolean);
@@ -100,18 +98,12 @@ export function EmotionBubble() {
     const url = new URL(path, window.location.origin);
     // Add color as URL parameter to ensure exact match
     url.searchParams.set('color', bubble.color);
-    // Use _blank to open in new tab, noopener and noreferrer for security
-    window.open(url.href, '_blank', 'noopener,noreferrer');
+    window.open(url.href, `emotionScene-${moodId}`);
   };
 
   return (
-    <div 
+    <div
       className="emotion-bubble-page"
-      style={{
-        background: 'linear-gradient(135deg, #f0e6ff 0%, #e6f0ff 25%, #ffe6f0 50%, #e6fff0 75%, #fff0e6 100%)',
-        backgroundSize: '400% 400%',
-        animation: 'holographicGradient 15s ease infinite',
-      }}
     >
       <BackButton />
       
@@ -119,11 +111,12 @@ export function EmotionBubble() {
         <div className="bubbles-grid">
           {bubbles.map((bubble, index) => {
             const fillPercentage = moodPercentages[bubble.moodId] || 0;
+
             return (
               <div
                 key={index}
                 className="emotion-bubble glass-jar"
-                style={{ 
+                style={{
                   '--bubble-color': bubble.color,
                   '--fill-percentage': `${fillPercentage}%`,
                 } as React.CSSProperties}

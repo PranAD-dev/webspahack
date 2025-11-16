@@ -6,9 +6,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(135deg, #f5e6ff 0%, #e0f2ff 25%, #ffe6f5 50%, #fff0e6 75%, #e6fff5 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+  background: transparent;
 }
 
 @keyframes gradientShift {
@@ -178,11 +176,11 @@
 
 .landing-subtitle {
   font-size: clamp(1.2rem, 3vw, 1.8rem);
-  color: rgba(100, 100, 120, 0.8);
+  color: rgb(242, 118, 9);
   font-weight: 300;
   letter-spacing: 0.05em;
   margin: 0;
-  animation: fadeIn 1.5s ease-out;
+  /* animation: fadeIn 1.5s ease-out; */
 }
 
 @keyframes fadeIn {
@@ -266,17 +264,20 @@
 
 /* WebSpatial support */
 html.is-spatial .landing-page {
-  background: transparent;
+  background: transparent !important;
   --xr-background-material: transparent;
 }
 
+/* Hide all background elements in visionOS */
+html.is-spatiaentire background color to dark bll .landing-background {
+  display: none !important;
+}
+
 html.is-spatial .landing-content {
-  --xr-back: 100px;
-  --xr-background-material: translucent;
+  --xr-background-material: transparent;
 }
 
 html.is-spatial .start-button {
-  --xr-back: 120px;
   --xr-background-material: thick;
 }
 

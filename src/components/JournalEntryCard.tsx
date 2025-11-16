@@ -19,7 +19,6 @@ export function JournalEntryCard({ entry, onClick }: JournalEntryCardProps) {
     if (onClick) {
       onClick();
     } else {
-      // Open entry in a new spatial window
       const entryData = encodeURIComponent(JSON.stringify(entry));
       const url = `${__XR_ENV_BASE__}/entry?entry=${entryData}`;
       window.open(url, `entry-${entry.id}`);

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BackButton } from '../components/BackButton';
 import { calculateWeeklyStats, calculateMonthlyStats, calculateYearlyStats, type MoodWrapStats } from '../services/moodWrapService';
 import { type JournalEntry, MOODS } from '../types';
-import { MoodWrapCarousel } from '../components/MoodWrapCarousel';
+import { SpatialMoodWrapCarousel } from '../components/SpatialMoodWrapCarousel';
 import './MoodWrap.css';
 
 type TimePeriod = 'weekly' | 'monthly' | 'yearly';
@@ -72,13 +72,25 @@ export function MoodWrap() {
     return `${startStr} - ${endStr}`;
   };
 
+  // Always render spatial carousel when we have stats - FULLSCREEN AUTOMATIC
+  if (stats && stats.totalEntries > 0 && !loading) {
+    return (
+      <SpatialMoodWrapCarousel
+        stats={stats}
+        timePeriod={timePeriod}
+        dateRange={formatDateRange(stats.dateRange.start, stats.dateRange.end)}
+        onTimePeriodChange={setTimePeriod}
+      />
+    );
+  }
+
   return (
     <div className="mood-wrap-page">
       <BackButton />
-      
+
       <div className="mood-wrap-container">
         <h1 className="mood-wrap-title">Soul Summary</h1>
-        
+
         <div className="time-period-tabs">
           <button
             className={`tab-button ${timePeriod === 'weekly' ? 'active' : ''}`}
@@ -105,18 +117,12 @@ export function MoodWrap() {
             <div className="spinner"></div>
             <p>Calculating your Soul Summary...</p>
           </div>
-        ) : !stats || stats.totalEntries === 0 ? (
+        ) : (
           <div className="empty-wrap">
             <div className="empty-icon">📔</div>
             <h2>No entries yet</h2>
             <p>Start journaling to see your Soul Summary!</p>
           </div>
-        ) : (
-          <MoodWrapCarousel 
-            stats={stats} 
-            timePeriod={timePeriod}
-            dateRange={formatDateRange(stats.dateRange.start, stats.dateRange.end)}
-          />
         )}
       </div>
     </div>

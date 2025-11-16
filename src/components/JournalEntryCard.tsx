@@ -42,6 +42,11 @@ export function JournalEntryCard({ entry, onClick }: JournalEntryCardProps) {
         </span>
         <span className="entry-date">{formattedDate}</span>
       </div>
+      {entry.title && (
+        <div className="entry-title">
+          {entry.title}
+        </div>
+      )}
       <div className="entry-content">
         {entry.content}
       </div>

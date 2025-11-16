@@ -7,6 +7,7 @@ export type Mood = {
 
 export type JournalEntry = {
   id: string;
+  title?: string; // Optional title for the journal entry
   content: string;
   mood: Mood;
   timestamp: Date;

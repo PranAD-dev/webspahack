@@ -31,14 +31,14 @@ export async function detectMood(text: string): Promise<MoodAnalysis> {
 
   try {
         // Try different model names in order of preference
-        // Note: Model names without "-latest" suffix are more reliable
+        // Prioritizing Gemini 2.0 Flash as requested
         const modelNames = [
-          'gemini-1.5-flash',      // Most common and reliable
-          'gemini-1.5-pro',        // Pro version
-          'gemini-pro',            // Legacy model name
-          'gemini-1.0-pro',        // Version 1.0
-          'models/gemini-1.5-flash', // Sometimes needs "models/" prefix
-          'models/gemini-1.5-pro',   // Sometimes needs "models/" prefix
+          'gemini-2.0-flash-exp',   // Gemini 2.0 Flash (experimental)
+          'gemini-2.0-flash',       // Gemini 2.0 Flash
+          'gemini-1.5-flash',       // Fallback to 1.5 Flash
+          'gemini-1.5-pro',         // Fallback to 1.5 Pro
+          'models/gemini-2.0-flash-exp', // With models/ prefix
+          'models/gemini-2.0-flash',     // With models/ prefix
         ];
     
     let model;

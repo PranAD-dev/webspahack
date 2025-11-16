@@ -56,6 +56,16 @@
   font-weight: 400;
 }
 
+.entry-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: rgba(100, 80, 120, 0.95);
+  margin-bottom: 12px;
+  line-height: 1.4;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(255, 182, 193, 0.2);
+}
+
 .entry-content {
   color: rgba(60, 60, 80, 0.9);
   line-height: 1.7;

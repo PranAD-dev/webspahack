@@ -132,6 +132,90 @@ export async function detectMood(entry: string): Promise<{ mood: string; confide
 }
 
 /**
+ * Generate a title for a journal entry based on its content
+ */
+export async function generateJournalTitle(entryContent: string): Promise<ClaudeResponse> {
+  try {
+    if (!entryContent || entryContent.trim().length < 10) {
+      return { 
+        content: '', 
+        error: 'Please write at least a few sentences before generating a title.' 
+      };
+    }
+
+    // Import Gemini AI
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    
+    const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!API_KEY) {
+      throw new Error('VITE_GEMINI_API_KEY is not set. Please check your .env file.');
+    }
+    
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    
+    const prompt = `Read this journal entry and generate a short, meaningful title (3-8 words max) that captures the essence or main theme of what the person wrote. The title should be:
+- Concise and impactful
+- Reflective of the emotional tone or main topic
+- Not too generic (avoid titles like "My Thoughts" or "Journal Entry")
+- Personal and meaningful
+
+Journal entry:
+"${entryContent}"
+
+Generate ONLY the title, nothing else. No quotes, no explanations, just the title text.`;
+
+    // Try different model names
+    const modelNames = [
+      'gemini-2.0-flash-exp',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro',
+    ];
+    
+    let lastError: any = null;
+    
+    for (const modelName of modelNames) {
+      try {
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: {
+            temperature: 0.7,
+            topP: 0.9,
+            topK: 40,
+            maxOutputTokens: 50,
+          },
+        });
+        
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        let title = response.text().trim();
+        
+        // Clean up the title (remove quotes if present)
+        title = title.replace(/^["']|["']$/g, '').trim();
+        
+        return { content: title };
+      } catch (error: any) {
+        console.warn(`⚠️ Model ${modelName} failed for title generation:`, error.message);
+        lastError = error;
+        if (error?.status === 404 || error?.statusCode === 404 || error?.message?.includes('404')) {
+          continue; // Try next model
+        } else {
+          break; // Other errors, stop trying
+        }
+      }
+    }
+    
+    throw lastError || new Error('Failed to generate title');
+  } catch (error: any) {
+    console.error('❌ Title generation error:', error);
+    return { 
+      content: '', 
+      error: error?.message || 'Failed to generate title. Please try again.' 
+    };
+  }
+}
+
+/**
  * Get general journaling prompts
  */
 export async function getJournalPrompts(): Promise<ClaudeResponse> {
@@ -143,6 +227,13 @@ export async function getJournalPrompts(): Promise<ClaudeResponse> {
     if (!API_KEY) {
       throw new Error('VITE_GEMINI_API_KEY is not set. Please check your .env file.');
     }
+    
+    // Validate API key format (Gemini keys usually start with "AIza")
+    if (!API_KEY.startsWith('AIza')) {
+      console.warn('⚠️ API key format might be incorrect. Gemini API keys usually start with "AIza"');
+    }
+    
+    console.log('🔑 API Key loaded:', API_KEY.substring(0, 10) + '...' + API_KEY.substring(API_KEY.length - 4));
     
     const genAI = new GoogleGenerativeAI(API_KEY);
     
@@ -279,14 +370,14 @@ ONLY output the numbered list, nothing else. No explanations, no intro text, jus
     console.log('🔑 Gemini API Key present?', !!API_KEY);
     
     // Try different model names in order of preference
-    // Note: Model names without "-latest" suffix are more reliable
+    // Prioritizing Gemini 2.0 Flash as requested
     const modelNames = [
-      'gemini-1.5-flash',      // Most common and reliable
-      'gemini-1.5-pro',        // Pro version
-      'gemini-pro',            // Legacy model name
-      'gemini-1.0-pro',        // Version 1.0
-      'models/gemini-1.5-flash', // Sometimes needs "models/" prefix
-      'models/gemini-1.5-pro',   // Sometimes needs "models/" prefix
+      'gemini-2.0-flash-exp',   // Gemini 2.0 Flash (experimental)
+      'gemini-2.0-flash',       // Gemini 2.0 Flash
+      'gemini-1.5-flash',       // Fallback to 1.5 Flash
+      'gemini-1.5-pro',         // Fallback to 1.5 Pro
+      'models/gemini-2.0-flash-exp', // With models/ prefix
+      'models/gemini-2.0-flash',     // With models/ prefix
     ];
     let model;
     let lastError: any = null;
@@ -294,6 +385,8 @@ ONLY output the numbered list, nothing else. No explanations, no intro text, jus
     for (const modelName of modelNames) {
       try {
         console.log(`🔄 Trying model: ${modelName}`);
+        console.log(`🔑 API Key format check: ${API_KEY.substring(0, 4)}...${API_KEY.substring(API_KEY.length - 4)}`);
+        
         model = genAI.getGenerativeModel({
           model: modelName,
           generationConfig: {
@@ -304,6 +397,7 @@ ONLY output the numbered list, nothing else. No explanations, no intro text, jus
           },
         });
         
+        console.log(`📡 Sending request to Gemini API with model: ${modelName}`);
         const result = await model.generateContent(promptContent);
         const response = await result.response;
         const responseText = response.text();
@@ -316,13 +410,41 @@ ONLY output the numbered list, nothing else. No explanations, no intro text, jus
         return { content: responseText };
       } catch (error: any) {
         console.warn(`⚠️ Model ${modelName} failed:`, error.message);
+        console.warn(`⚠️ Error details:`, {
+          message: error?.message,
+          status: error?.status,
+          statusCode: error?.statusCode,
+          code: error?.code,
+          name: error?.name
+        });
         lastError = error;
-        // Continue to try next model
-        if (error.message?.includes('404') || error.message?.includes('not found')) {
+        
+        // Check if it's a 404 (model not found) - continue to next model
+        const is404 = error?.status === 404 || 
+                     error?.statusCode === 404 ||
+                     error?.message?.includes('404') || 
+                     error?.message?.includes('not found') ||
+                     error?.code === 404;
+        
+        // Check if it's an auth error (401/403) - stop trying, this is a key issue
+        const isAuthError = error?.status === 401 || 
+                           error?.status === 403 ||
+                           error?.statusCode === 401 ||
+                           error?.statusCode === 403 ||
+                           error?.message?.includes('API key') ||
+                           error?.message?.includes('unauthorized') ||
+                           error?.message?.includes('permission') ||
+                           error?.code === 401 ||
+                           error?.code === 403;
+        
+        if (is404) {
           continue; // Try next model if it's a 404
+        } else if (isAuthError) {
+          // Auth errors mean the API key is wrong, stop trying
+          throw new Error(`Invalid or unauthorized API key. Please check your VITE_GEMINI_API_KEY in your .env file. Error: ${error?.message}`);
         } else {
-          // If it's a different error (auth, etc), throw immediately
-          throw error;
+          // Other errors - might be network, rate limit, etc. Continue trying
+          continue;
         }
       }
     }
@@ -361,21 +483,32 @@ ONLY output the numbered list, nothing else. No explanations, no intro text, jus
     }
     
     const errorMessage = error?.message || error?.statusText || 'Unknown error';
+    const errorStatus = error?.status || error?.statusCode;
     
     // Provide user-friendly error message
     let userMessage = 'Failed to generate prompts. ';
-    if (errorMessage.includes('404') || errorMessage.includes('not found')) {
+    
+    // Check for specific error types
+    if (errorStatus === 401 || errorStatus === 403 || errorMessage.includes('API key') || errorMessage.includes('unauthorized')) {
+      userMessage += 'Invalid or unauthorized API key. ';
+      userMessage += '\n\nTo fix this:\n';
+      userMessage += '1. Create a .env file in the webspahack directory (if it doesn\'t exist)\n';
+      userMessage += '2. Add: VITE_GEMINI_API_KEY=your-api-key-here\n';
+      userMessage += '3. Get your API key from: https://aistudio.google.com/app/apikey\n';
+      userMessage += '4. Restart your dev server after adding the key';
+    } else if (errorStatus === 404 || errorMessage.includes('404') || errorMessage.includes('not found')) {
       userMessage += 'The Gemini model is not available with your API key. ';
-      userMessage += 'Please check:\n';
+      userMessage += '\n\nPlease check:\n';
       userMessage += '1. Visit https://aistudio.google.com/app/apikey to verify your API key\n';
       userMessage += '2. Ensure Gemini API is enabled for your project\n';
       userMessage += '3. Check which models are available in Google AI Studio\n';
       userMessage += '4. Your API key might need to be regenerated or have permissions updated';
-    } else if (errorMessage.includes('API key') || errorMessage.includes('401') || errorMessage.includes('403')) {
-      userMessage += 'Invalid or unauthorized API key. ';
-      userMessage += 'Please check your VITE_GEMINI_API_KEY in your .env file.';
     } else {
       userMessage += errorMessage;
+      userMessage += '\n\nPlease check:\n';
+      userMessage += '1. Your VITE_GEMINI_API_KEY is set in your .env file\n';
+      userMessage += '2. Your API key is valid at https://aistudio.google.com/app/apikey\n';
+      userMessage += '3. You have restarted your dev server after adding the key';
     }
     
     return { 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BackButton } from '../components/BackButton';
 import { JournalEntryCard } from '../components/JournalEntryCard';
 import { JournalPrompts } from '../components/JournalPrompts';
-import { detectMood } from '../services/claudeService';
+import { detectMood, generateJournalTitle } from '../services/claudeService';
 import { MOODS, type JournalEntry } from '../types';
 import './NewJournalEntry.css';
 
@@ -31,11 +31,15 @@ declare global {
 }
 
 export function NewJournalEntry() {
+  const [entryTitle, setEntryTitle] = useState('');
   const [entryText, setEntryText] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [saved, setSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
+  const [isGeneratingAllTitles, setIsGeneratingAllTitles] = useState(false);
+  const [titleGenerationProgress, setTitleGenerationProgress] = useState({ current: 0, total: 0 });
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>('date-desc');
 
@@ -142,6 +146,7 @@ export function NewJournalEntry() {
       const stored = JSON.parse(localStorage.getItem('journalEntries') || '[]');
       const newEntry = {
         id: Date.now().toString(),
+        title: entryTitle.trim() || undefined, // Only include title if it's not empty
         content: entryText,
         mood: mood,
         timestamp: new Date().toISOString(),
@@ -157,6 +162,7 @@ export function NewJournalEntry() {
       // Reload entries and reset form
       loadEntries();
       setEntryText('');
+      setEntryTitle('');
       setSaved(true);
       setTimeout(() => {
         setSaved(false);
@@ -166,6 +172,70 @@ export function NewJournalEntry() {
       alert('Failed to save entry. Please try again.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Generate titles for all entries without titles
+  const generateAllTitles = async () => {
+    const entriesWithoutTitles = entries.filter(entry => !entry.title || entry.title.trim() === '');
+    
+    if (entriesWithoutTitles.length === 0) {
+      alert('All entries already have titles! 🎉');
+      return;
+    }
+
+    if (!confirm(`Generate AI titles for ${entriesWithoutTitles.length} entry/entries? This may take a moment.`)) {
+      return;
+    }
+
+    setIsGeneratingAllTitles(true);
+    setTitleGenerationProgress({ current: 0, total: entriesWithoutTitles.length });
+
+    try {
+      const stored = JSON.parse(localStorage.getItem('journalEntries') || '[]');
+      let updatedCount = 0;
+
+      for (let i = 0; i < entriesWithoutTitles.length; i++) {
+        const entry = entriesWithoutTitles[i];
+        setTitleGenerationProgress({ current: i + 1, total: entriesWithoutTitles.length });
+
+        try {
+          // Generate title for this entry
+          const result = await generateJournalTitle(entry.content);
+          
+          if (result.content && !result.error) {
+            // Find and update the entry in stored array
+            const entryIndex = stored.findIndex((e: any) => e.id === entry.id);
+            if (entryIndex !== -1) {
+              stored[entryIndex].title = result.content;
+              updatedCount++;
+            }
+          } else {
+            console.warn(`Failed to generate title for entry ${entry.id}:`, result.error);
+          }
+
+          // Small delay to avoid rate limiting
+          if (i < entriesWithoutTitles.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        } catch (error) {
+          console.error(`Error generating title for entry ${entry.id}:`, error);
+        }
+      }
+
+      // Save updated entries
+      localStorage.setItem('journalEntries', JSON.stringify(stored));
+      
+      // Reload entries to show new titles
+      loadEntries();
+      
+      alert(`Successfully generated titles for ${updatedCount} out of ${entriesWithoutTitles.length} entries! ✨`);
+    } catch (error) {
+      console.error('Error generating all titles:', error);
+      alert('An error occurred while generating titles. Please try again.');
+    } finally {
+      setIsGeneratingAllTitles(false);
+      setTitleGenerationProgress({ current: 0, total: 0 });
     }
   };
 
@@ -193,6 +263,44 @@ export function NewJournalEntry() {
         {/* New Entry Form */}
         <div className="new-entry-section">
           <h2 className="section-title">Let your soul speak freely</h2>
+          
+          {/* Title Input */}
+          <div className="title-input-wrapper">
+            <input
+              type="text"
+              className="journal-title-input"
+              placeholder="Add a title (optional)"
+              value={entryTitle}
+              onChange={(e) => setEntryTitle(e.target.value)}
+            />
+            <button
+              className="generate-title-button"
+              onClick={async () => {
+                if (!entryText.trim()) {
+                  alert('Please write something first before generating a title.');
+                  return;
+                }
+                setIsGeneratingTitle(true);
+                try {
+                  const result = await generateJournalTitle(entryText);
+                  if (result.content && !result.error) {
+                    setEntryTitle(result.content);
+                  } else {
+                    alert(result.error || 'Failed to generate title. Please try again.');
+                  }
+                } catch (error) {
+                  console.error('Error generating title:', error);
+                  alert('Failed to generate title. Please try again.');
+                } finally {
+                  setIsGeneratingTitle(false);
+                }
+              }}
+              disabled={isGeneratingTitle || !entryText.trim()}
+              title="Generate title with AI"
+            >
+              {isGeneratingTitle ? '✨ Generating...' : '✨ AI Title'}
+            </button>
+          </div>
           
           {/* AI-Powered Prompts */}
           <JournalPrompts 
@@ -239,25 +347,40 @@ export function NewJournalEntry() {
           </div>
         </div>
 
-        {/* Past Entries */}
-        <div className="past-entries-section">
-          <div className="entries-header">
-            <h2 className="section-title">Past Entries</h2>
-            {entries.length > 0 && (
-              <div className="sort-controls">
-                <label>Sort by:</label>
-                <select 
-                  value={sortBy} 
-                  onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="sort-select"
-                >
-                  <option value="date-desc">Newest First</option>
-                  <option value="date-asc">Oldest First</option>
-                  <option value="mood">By Mood</option>
-                </select>
+          {/* Past Entries */}
+          <div className="past-entries-section">
+            <div className="entries-header">
+              <h2 className="section-title">Past Entries</h2>
+              <div className="entries-header-controls">
+                {entries.length > 0 && (
+                  <div className="sort-controls">
+                    <label>Sort by:</label>
+                    <select 
+                      value={sortBy} 
+                      onChange={(e) => setSortBy(e.target.value as SortOption)}
+                      className="sort-select"
+                    >
+                      <option value="date-desc">Newest First</option>
+                      <option value="date-asc">Oldest First</option>
+                      <option value="mood">By Mood</option>
+                    </select>
+                  </div>
+                )}
+                {entries.some(entry => !entry.title || entry.title.trim() === '') && (
+                  <button
+                    className="generate-all-titles-button"
+                    onClick={generateAllTitles}
+                    disabled={isGeneratingAllTitles}
+                    title="Generate AI titles for all entries without titles"
+                  >
+                    {isGeneratingAllTitles 
+                      ? `✨ Generating... (${titleGenerationProgress.current}/${titleGenerationProgress.total})`
+                      : '✨ Generate All Titles'
+                    }
+                  </button>
+                )}
               </div>
-            )}
-          </div>
+            </div>
 
           {entries.length === 0 ? (
             <div className="empty-entries">

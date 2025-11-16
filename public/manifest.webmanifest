@@ -1,29 +1,18 @@
 {
-  "name": "Spatial Journal",
-  "short_name": "Journal",
-  "description": "Your thoughts deserve space - An XR journaling experience",
-  "start_url": "/",
-  "xr_main_scene": {
-    "default_size": {
-      "width": 1200,
-      "height": 900
-    },
-    "min_size": {
-      "width": 800,
-      "height": 600
-    },
-    "max_size": {
-      "width": 1600,
-      "height": 1200
-    }
-  },
-  "xr_scenes": {
-    "entry": {
-      "default_size": {
-        "width": 700,
-        "height": 800
-      },
-      "resizable": true
+    "name": "3D Model Demo",
+    "short_name": "3D Model Demo",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "icons": [
+      {
+        "src": "redImage1024.jpg",
+        "sizes": "1024x1024",
+        "type": "image/jpg",
+        "purpose": "maskable any"
+      }
+    ],
+    "xr_main_scene": {
+      "default_size": { "width": 1200, "height": 1200 }
     }
   }
-}

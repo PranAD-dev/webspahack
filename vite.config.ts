@@ -1,27 +1,24 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import webSpatial from "@webspatial/vite-plugin";
 import { createHtmlPlugin } from "vite-plugin-html";
+// import basicSsl from '@vitejs/plugin-basic-ssl'
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
-  // Load env file based on `mode` in the current working directory.
-  // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
-  const env = loadEnv(mode, '.', '');
-  
-  return {
-    plugins: [
-      react(),
-      webSpatial({
-        outputDir: "",
-      }),
-      createHtmlPlugin({
-        inject: {
-          data: {
-            XR_ENV: env.XR_ENV,
-          },
+export default defineConfig({
+  server: {
+    host: '0.0.0.0',
+  },
+  plugins: [
+    react(),
+    // basicSsl(),
+    webSpatial(),
+    createHtmlPlugin({
+      inject: {
+        data: {
+          XR_ENV: process.env.XR_ENV,
         },
-      }),
-    ],
-  };
+      },
+    }),
+  ],
 });

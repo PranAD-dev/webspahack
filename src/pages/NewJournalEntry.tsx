@@ -162,17 +162,17 @@ export function NewJournalEntry() {
       stored.unshift(newEntry);
       localStorage.setItem('journalEntries', JSON.stringify(stored));
 
-      // Reload entries and reset form
+      // Reload entries
       loadEntries();
-      
-      // Show AI feedback
-      setFeedbackEntry({
-        content: entryText,
-        mood: mood.name,
-        title: entryTitle.trim() || undefined,
-      });
-      setShowFeedback(true);
-      
+
+      // Open the new entry in a popup window
+      const entryData = encodeURIComponent(JSON.stringify({
+        ...newEntry,
+        timestamp: new Date(newEntry.timestamp)
+      }));
+      const url = `${__XR_ENV_BASE__}/entry?entry=${entryData}`;
+      window.open(url, `entry-${newEntry.id}`);
+
       // Reset form
       setEntryText('');
       setEntryTitle('');
@@ -372,54 +372,6 @@ export function NewJournalEntry() {
             }}
           />
         )}
-
-          {/* Past Entries */}
-          <div className="past-entries-section">
-            <div className="entries-header">
-              <h2 className="section-title">Past Entries</h2>
-              <div className="entries-header-controls">
-                {entries.length > 0 && (
-                  <div className="sort-controls">
-                    <label>Sort by:</label>
-                    <select 
-                      value={sortBy} 
-                      onChange={(e) => setSortBy(e.target.value as SortOption)}
-                      className="sort-select"
-                    >
-                      <option value="date-desc">Newest First</option>
-                      <option value="date-asc">Oldest First</option>
-                      <option value="mood">By Mood</option>
-                    </select>
-                  </div>
-                )}
-                {entries.some(entry => !entry.title || entry.title.trim() === '') && (
-                  <button
-                    className="generate-all-titles-button"
-                    onClick={generateAllTitles}
-                    disabled={isGeneratingAllTitles}
-                    title="Generate AI titles for all entries without titles"
-                  >
-                    {isGeneratingAllTitles 
-                      ? `✨ Generating... (${titleGenerationProgress.current}/${titleGenerationProgress.total})`
-                      : '✨ Generate All Titles'
-                    }
-                  </button>
-                )}
-              </div>
-            </div>
-
-          {entries.length === 0 ? (
-            <div className="empty-entries">
-              <p>No entries yet. Start writing above to create your first entry!</p>
-            </div>
-          ) : (
-            <div className="entries-grid">
-              {sortedEntries.map(entry => (
-                <JournalEntryCard key={entry.id} entry={entry} />
-              ))}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

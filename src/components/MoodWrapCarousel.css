@@ -167,7 +167,10 @@
   letter-spacing: 0.05em;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  height: 44px; /* Fixed height for alignment */
+  line-height: 1;
 }
 
 .action-button:hover {

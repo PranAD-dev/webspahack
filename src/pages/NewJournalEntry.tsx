@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BackButton } from '../components/BackButton';
 import { JournalEntryCard } from '../components/JournalEntryCard';
+import { JournalPrompts } from '../components/JournalPrompts';
 import { detectMood } from '../services/claudeService';
 import { MOODS, type JournalEntry } from '../types';
 import './NewJournalEntry.css';
@@ -191,7 +192,24 @@ export function NewJournalEntry() {
         
         {/* New Entry Form */}
         <div className="new-entry-section">
-          <h2 className="section-title">New Entry</h2>
+          <h2 className="section-title">Let your soul speak freely</h2>
+          
+          {/* AI-Powered Prompts */}
+          <JournalPrompts 
+            entryCount={entries.length}
+            onSelectPrompt={(prompt) => {
+              setEntryText(prev => prev ? `${prev}\n\n${prompt}\n\n` : `${prompt}\n\n`);
+              // Scroll to textarea
+              setTimeout(() => {
+                const textarea = document.querySelector('.journal-textarea') as HTMLTextAreaElement;
+                if (textarea) {
+                  textarea.focus();
+                  textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }, 100);
+            }}
+          />
+          
           <div className="text-area-wrapper">
             <textarea
               className="journal-textarea"

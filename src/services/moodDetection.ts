@@ -20,9 +20,9 @@ export interface MoodAnalysis {
 export async function detectMood(text: string): Promise<MoodAnalysis> {
   // Handle empty or very short text
   if (!text || text.trim().length < 5) {
-    console.log('⚠️ Text too short, defaulting to neutral');
+    console.log('⚠️ Text too short, defaulting to reflective');
     return {
-      mood: MOODS.find(m => m.id === 'neutral') || MOODS[0],
+      mood: MOODS.find(m => m.id === 'reflective') || MOODS[0],
       confidence: 0.3,
     };
   }
@@ -30,10 +30,47 @@ export async function detectMood(text: string): Promise<MoodAnalysis> {
   console.log('📝 Analyzing text:', text.substring(0, 100) + '...');
 
   try {
-    // Using Gemini 2.0 Flash - latest and fastest model
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash-exp',
-    });
+        // Try different model names in order of preference
+        // Note: Model names without "-latest" suffix are more reliable
+        const modelNames = [
+          'gemini-1.5-flash',      // Most common and reliable
+          'gemini-1.5-pro',        // Pro version
+          'gemini-pro',            // Legacy model name
+          'gemini-1.0-pro',        // Version 1.0
+          'models/gemini-1.5-flash', // Sometimes needs "models/" prefix
+          'models/gemini-1.5-pro',   // Sometimes needs "models/" prefix
+        ];
+    
+    let model;
+    let lastError: any = null;
+    
+    for (const modelName of modelNames) {
+      try {
+        console.log(`🔄 Trying mood detection model: ${modelName}`);
+        model = genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: {
+            temperature: 0.3, // Lower temperature for more consistent analysis
+            topP: 0.8,
+            topK: 40,
+          },
+        });
+        console.log(`✅ Using model: ${modelName} for mood detection`);
+        break; // Success, exit loop
+      } catch (error: any) {
+        console.warn(`⚠️ Model ${modelName} failed:`, error.message);
+        lastError = error;
+        if (error.message?.includes('404') || error.message?.includes('not found')) {
+          continue; // Try next model
+        } else {
+          throw error; // Other errors (auth, etc) should stop
+        }
+      }
+    }
+    
+    if (!model) {
+      throw lastError || new Error('All model attempts failed for mood detection');
+    }
 
     const moodList = MOODS.map(m => `${m.id}: ${m.name} ${m.emoji}`).join('\n');
 
@@ -84,7 +121,7 @@ Important: DO NOT default to "neutral" unless the text is truly neutral/balanced
     if (!detectedMood) {
       console.warn('AI returned unknown mood:', parsed.mood);
       return {
-        mood: MOODS.find(m => m.id === 'neutral') || MOODS[0],
+        mood: MOODS.find(m => m.id === 'reflective') || MOODS[0],
         confidence: 0.5,
       };
     }
@@ -97,9 +134,9 @@ Important: DO NOT default to "neutral" unless the text is truly neutral/balanced
   } catch (error) {
     console.error('Mood detection error:', error);
 
-    // Fallback to neutral on error
+    // Fallback to reflective on error
     return {
-      mood: MOODS.find(m => m.id === 'neutral') || MOODS[0],
+      mood: MOODS.find(m => m.id === 'reflective') || MOODS[0],
       confidence: 0.3,
     };
   }

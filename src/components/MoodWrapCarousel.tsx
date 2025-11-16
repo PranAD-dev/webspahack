@@ -66,17 +66,17 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
   const slides = timePeriod === 'yearly' ? [
     <YearlyHeroSlide key="hero" year={getYear()} />,
     <YearInNumbersSlide key="numbers" stats={stats} />,
-    <Top3EmotionsSlide key="top3" stats={stats} />,
-    <EmotionTimelineSlide key="timeline" stats={stats} />,
-    <TransformativeMonthSlide key="transformative" stats={stats} />,
-    <PeakHappinessSlide key="happiness" stats={stats} />,
-    <HardestMonthSlide key="hardest" stats={stats} />,
-    <LongestStreakYearlySlide key="streak" stats={stats} />,
-    <WordsThatDefinedSlide key="words" stats={stats} year={getYear()} />,
-    <EmotionalGrowthSlide key="growth" stats={stats} />,
-    <ConsistencyBadgeSlide key="badge" stats={stats} />,
-    <GratitudeCounterSlide key="gratitude" stats={stats} />,
-    <MostReflectiveDaySlide key="reflective" stats={stats} />,
+    ...(stats.top3Emotions && stats.top3Emotions.length > 0 ? [<Top3EmotionsSlide key="top3" stats={stats} />] : []),
+    ...(stats.monthlyBreakdown && stats.monthlyBreakdown.length > 0 ? [<EmotionTimelineSlide key="timeline" stats={stats} />] : []),
+    ...(stats.mostTransformativeMonth ? [<TransformativeMonthSlide key="transformative" stats={stats} />] : []),
+    ...(stats.peakHappinessMonth ? [<PeakHappinessSlide key="happiness" stats={stats} />] : []),
+    ...(stats.hardestMonth ? [<HardestMonthSlide key="hardest" stats={stats} />] : []),
+    ...(stats.longestStreak && stats.streakDates ? [<LongestStreakYearlySlide key="streak" stats={stats} />] : []),
+    ...(stats.wordCloud && stats.wordCloud.length > 0 ? [<WordsThatDefinedSlide key="words" stats={stats} year={getYear()} />] : []),
+    ...(stats.emotionalGrowth ? [<EmotionalGrowthSlide key="growth" stats={stats} />] : []),
+    ...(stats.percentile ? [<ConsistencyBadgeSlide key="badge" stats={stats} />] : []),
+    ...(stats.gratitudeCount ? [<GratitudeCounterSlide key="gratitude" stats={stats} />] : []),
+    ...(stats.mostReflectiveEntry ? [<MostReflectiveDaySlide key="reflective" stats={stats} />] : []),
     <YearTransitionSlide key="transition" currentYear={getYear()} nextYear={getNextYear()} />,
     <ShareJourneySlide key="share" stats={stats} year={getYear()} />,
     <div key="glowcard" className="glowcard-slide">
@@ -85,7 +85,7 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
         year={getYear()}
       />
     </div>
-  ] : timePeriod === 'monthly' ? [
+  ].filter(Boolean) : timePeriod === 'monthly' ? [
     <MonthlyHeroSlide key="hero" monthName={getMonthName(stats.dateRange.start)} />,
     <ByTheNumbersSlide key="numbers" stats={stats} />,
     <EmotionEvolutionSlide key="evolution" stats={stats} />,
@@ -94,8 +94,8 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
     <StreakSlide key="streak" stats={stats} />,
     <MostActiveDaySlide key="active-day" stats={stats} />,
     <WordCloudSlide key="wordcloud" stats={stats} monthName={getMonthName(stats.dateRange.start)} />,
-    <TransformationSlide key="transformation" stats={stats} />,
-    <ConsistencySlide key="consistency" stats={stats} />,
+    ...(stats.transformationMoment ? [<TransformationSlide key="transformation" stats={stats} />] : []),
+    ...(stats.consistencyScore ? [<ConsistencySlide key="consistency" stats={stats} />] : []),
     <LookingAheadSlide key="ahead" stats={stats} nextMonth={getNextMonthName()} />,
     <div key="glowcard" className="glowcard-slide">
       <GlowCard 
@@ -103,7 +103,7 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
         year={stats.dateRange.start.getFullYear()}
       />
     </div>
-  ] : [
+  ].filter(Boolean) : [
     <HeroSlide key="hero" timePeriod={timePeriod} dateRange={dateRange} />,
     <EntryCountSlide key="count" stats={stats} />,
     <TopEmotionSlide key="emotion" stats={stats} />,
@@ -237,63 +237,77 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
   };
 
   const handleShareSlide = async () => {
-    const slideElement = document.querySelector(`.floating-card.active .card-content`);
-    if (!slideElement) return;
+    // Find the active card element
+    const activeCard = document.querySelector('.floating-card.active');
+    if (!activeCard) {
+      console.error('No active card found');
+      return;
+    }
 
     try {
-      // Create a canvas to capture the slide
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      // Dynamically import html2canvas
+      const html2canvas = (await import('html2canvas')).default;
+      
+      // Capture the entire active card
+      const canvas = await html2canvas(activeCard as HTMLElement, {
+        backgroundColor: null,
+        scale: 2, // Higher quality
+        useCORS: true,
+        logging: false,
+        width: activeCard.clientWidth,
+        height: activeCard.clientHeight,
+      });
 
-      // Get slide dimensions
-      const rect = slideElement.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
+      // Convert canvas to blob
+      canvas.toBlob((blob: Blob | null) => {
+        if (!blob) {
+          console.error('Failed to create blob');
+          return;
+        }
 
-      // Use html2canvas if available, otherwise fallback to text sharing
-      if (typeof (window as any).html2canvas !== 'undefined') {
-        const html2canvas = (window as any).html2canvas;
-        html2canvas(slideElement as HTMLElement).then((canvas: HTMLCanvasElement) => {
-          canvas.toBlob((blob: Blob | null) => {
-            if (blob && navigator.share) {
-              const file = new File([blob], `soul-summary-slide-${currentSlide + 1}.png`, { type: 'image/png' });
-              navigator.share({
-                title: `Soul Summary - Slide ${currentSlide + 1}`,
-                files: [file],
-              });
-            } else if (blob) {
-              // Fallback: download image
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `soul-summary-slide-${currentSlide + 1}.png`;
-              a.click();
-              URL.revokeObjectURL(url);
-            }
+        const file = new File([blob], `soul-summary-slide-${currentSlide + 1}.png`, { type: 'image/png' });
+
+        // Try native share API first
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({
+            title: `Soul Summary - Slide ${currentSlide + 1}`,
+            text: `Check out my Soul Summary!`,
+            files: [file],
+          }).catch((error) => {
+            console.error('Error sharing:', error);
+            // Fallback to download
+            downloadImage(blob);
           });
-        });
-      } else {
-        // Fallback: share text summary
-        const shareText = `Soul Summary - Slide ${currentSlide + 1} of ${slides.length}\n\nCheck out my Soul Summary journey!`;
-        if (navigator.share) {
-          navigator.share({ title: 'Soul Summary', text: shareText });
         } else {
+          // Fallback: download image
+          downloadImage(blob);
+        }
+      }, 'image/png');
+    } catch (error) {
+      console.error('Error capturing slide:', error);
+      // Fallback: share text summary
+      const shareText = `Soul Summary - Slide ${currentSlide + 1} of ${slides.length}\n\nCheck out my Soul Summary journey!`;
+      if (navigator.share) {
+        navigator.share({ title: 'Soul Summary', text: shareText }).catch(() => {
           navigator.clipboard.writeText(shareText);
           alert('Slide summary copied to clipboard!');
-        }
-      }
-    } catch (error) {
-      console.error('Error sharing slide:', error);
-      // Fallback to text sharing
-      const shareText = `Soul Summary - Slide ${currentSlide + 1} of ${slides.length}`;
-      if (navigator.share) {
-        navigator.share({ title: 'Soul Summary', text: shareText });
+        });
       } else {
         navigator.clipboard.writeText(shareText);
         alert('Slide summary copied to clipboard!');
       }
     }
+  };
+
+  const downloadImage = (blob: Blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `soul-summary-slide-${currentSlide + 1}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (

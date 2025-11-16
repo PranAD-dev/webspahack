@@ -50,7 +50,7 @@ export function FeatureSelection() {
           
           <button className="feature-button emotion-bubble-button" onClick={handleEmotionBubble}>
             <div className="button-icon">💭</div>
-            <span className="button-label">Emotion Bubble</span>
+            <span className="button-label">Emotion Sphere</span>
             <span className="button-glow"></span>
           </button>
         </div>

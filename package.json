@@ -17,6 +17,7 @@
     "@google/model-viewer": "^4.1.0",
     "@webspatial/core-sdk": "^1.0.4",
     "@webspatial/react-sdk": "^1.0.4",
+    "html2canvas": "^1.4.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.6",

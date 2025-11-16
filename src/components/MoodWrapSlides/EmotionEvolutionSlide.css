@@ -1,0 +1,44 @@
+.emotion-evolution-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mood-graph-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.mood-graph {
+  width: 100%;
+  height: auto;
+  min-height: 300px;
+}
+
+.mood-point {
+  cursor: pointer;
+  transition: r 0.2s ease;
+}
+
+.mood-point:hover {
+  r: 8;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mood-graph-container {
+    padding: 15px;
+    max-width: 100%;
+  }
+  
+  .mood-graph {
+    min-height: 250px;
+  }
+}
+

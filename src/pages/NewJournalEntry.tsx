@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
 import { BackButton } from '../components/BackButton';
-import { JournalEntryCard } from '../components/JournalEntryCard';
 import { JournalPrompts } from '../components/JournalPrompts';
 import { AIFeedback } from '../components/AIFeedback';
 import { detectMood, generateJournalTitle } from '../services/claudeService';
 import { MOODS, type JournalEntry } from '../types';
 import './NewJournalEntry.css';
-
-type SortOption = 'date-desc' | 'date-asc' | 'mood';
 
 interface SpeechRecognition extends EventTarget {
   continuous: boolean;
@@ -39,10 +36,7 @@ export function NewJournalEntry() {
   const [saved, setSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
-  const [isGeneratingAllTitles, setIsGeneratingAllTitles] = useState(false);
-  const [titleGenerationProgress, setTitleGenerationProgress] = useState({ current: 0, total: 0 });
   const [entries, setEntries] = useState<JournalEntry[]>([]);
-  const [sortBy, setSortBy] = useState<SortOption>('date-desc');
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackEntry, setFeedbackEntry] = useState<{ content: string; mood: string; title?: string } | null>(null);
 
@@ -188,83 +182,54 @@ export function NewJournalEntry() {
     }
   };
 
-  // Generate titles for all entries without titles
-  const generateAllTitles = async () => {
-    const entriesWithoutTitles = entries.filter(entry => !entry.title || entry.title.trim() === '');
-    
-    if (entriesWithoutTitles.length === 0) {
-      alert('All entries already have titles! 🎉');
-      return;
-    }
-
-    if (!confirm(`Generate AI titles for ${entriesWithoutTitles.length} entry/entries? This may take a moment.`)) {
-      return;
-    }
-
-    setIsGeneratingAllTitles(true);
-    setTitleGenerationProgress({ current: 0, total: entriesWithoutTitles.length });
-
-    try {
-      const stored = JSON.parse(localStorage.getItem('journalEntries') || '[]');
-      let updatedCount = 0;
-
-      for (let i = 0; i < entriesWithoutTitles.length; i++) {
-        const entry = entriesWithoutTitles[i];
-        setTitleGenerationProgress({ current: i + 1, total: entriesWithoutTitles.length });
-
-        try {
-          // Generate title for this entry
-          const result = await generateJournalTitle(entry.content);
-          
-          if (result.content && !result.error) {
-            // Find and update the entry in stored array
-            const entryIndex = stored.findIndex((e: any) => e.id === entry.id);
-            if (entryIndex !== -1) {
-              stored[entryIndex].title = result.content;
-              updatedCount++;
-            }
-          } else {
-            console.warn(`Failed to generate title for entry ${entry.id}:`, result.error);
-          }
-
-          // Small delay to avoid rate limiting
-          if (i < entriesWithoutTitles.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-          }
-        } catch (error) {
-          console.error(`Error generating title for entry ${entry.id}:`, error);
-        }
-      }
-
-      // Save updated entries
-      localStorage.setItem('journalEntries', JSON.stringify(stored));
-      
-      // Reload entries to show new titles
-      loadEntries();
-      
-      alert(`Successfully generated titles for ${updatedCount} out of ${entriesWithoutTitles.length} entries! ✨`);
-    } catch (error) {
-      console.error('Error generating all titles:', error);
-      alert('An error occurred while generating titles. Please try again.');
-    } finally {
-      setIsGeneratingAllTitles(false);
-      setTitleGenerationProgress({ current: 0, total: 0 });
-    }
-  };
-
-  // Sort entries
-  const sortedEntries = [...entries].sort((a, b) => {
-    switch (sortBy) {
-      case 'date-desc':
-        return b.timestamp.getTime() - a.timestamp.getTime();
-      case 'date-asc':
-        return a.timestamp.getTime() - b.timestamp.getTime();
-      case 'mood':
-        return a.mood.name.localeCompare(b.mood.name);
-      default:
-        return 0;
-    }
-  });
+  // Commented out unused function - can be re-enabled if needed
+  // const generateAllTitles = async () => {
+  //   const entriesWithoutTitles = entries.filter(entry => !entry.title || entry.title.trim() === '');
+  //
+  //   if (entriesWithoutTitles.length === 0) {
+  //     alert('All entries already have titles! 🎉');
+  //     return;
+  //   }
+  //
+  //   if (!confirm(`Generate AI titles for ${entriesWithoutTitles.length} entry/entries? This may take a moment.`)) {
+  //     return;
+  //   }
+  //
+  //   try {
+  //     const stored = JSON.parse(localStorage.getItem('journalEntries') || '[]');
+  //     let updatedCount = 0;
+  //
+  //     for (let i = 0; i < entriesWithoutTitles.length; i++) {
+  //       const entry = entriesWithoutTitles[i];
+  //
+  //       try {
+  //         const result = await generateJournalTitle(entry.content);
+  //
+  //         if (result.content && !result.error) {
+  //           const entryIndex = stored.findIndex((e: any) => e.id === entry.id);
+  //           if (entryIndex !== -1) {
+  //             stored[entryIndex].title = result.content;
+  //             updatedCount++;
+  //           }
+  //         }
+  //
+  //         if (i < entriesWithoutTitles.length - 1) {
+  //           await new Promise(resolve => setTimeout(resolve, 500));
+  //         }
+  //       } catch (error) {
+  //         console.error(`Error generating title for entry ${entry.id}:`, error);
+  //       }
+  //     }
+  //
+  //     localStorage.setItem('journalEntries', JSON.stringify(stored));
+  //     loadEntries();
+  //
+  //     alert(`Successfully generated titles for ${updatedCount} out of ${entriesWithoutTitles.length} entries! ✨`);
+  //   } catch (error) {
+  //     console.error('Error generating all titles:', error);
+  //     alert('An error occurred while generating titles. Please try again.');
+  //   }
+  // };
 
   return (
     <div className="new-journal-entry-page">

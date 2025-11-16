@@ -7,6 +7,7 @@ import { FeatureSelection } from './pages/FeatureSelection';
 import { NewJournalEntry } from './pages/NewJournalEntry';
 import { MoodWrap } from './pages/MoodWrap';
 import { EmotionBubble } from './pages/EmotionBubble';
+import { EmotionEntriesView } from './pages/EmotionEntriesView';
 import type { JournalEntry, Mood } from './types';
 import { MoodSelector } from './components/MoodSelector';
 import { VoiceInput } from './components/VoiceInput';
@@ -156,6 +157,7 @@ function App() {
         <Route path="/journal-old" element={<JournalApp />} />
         <Route path="/mood-wrap" element={<MoodWrap />} />
         <Route path="/emotion-bubble" element={<EmotionBubble />} />
+        <Route path="/emotion-entries/:moodId" element={<EmotionEntriesView />} />
         <Route path="/second-page" element={<SecondPage />} />
         <Route path="/entry" element={<JournalEntryScene />} />
       </Routes>

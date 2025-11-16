@@ -1,38 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import type { MoodWrapStats } from '../services/moodWrapService';
-import { HeroSlide } from './MoodWrapSlides/HeroSlide';
-import { EntryCountSlide } from './MoodWrapSlides/EntryCountSlide';
-import { TopEmotionSlide } from './MoodWrapSlides/TopEmotionSlide';
-import { BreakdownSlide } from './MoodWrapSlides/BreakdownSlide';
-import { PeakMomentSlide } from './MoodWrapSlides/PeakMomentSlide';
-import { InsightSlide } from './MoodWrapSlides/InsightSlide';
-import { GoalSlide } from './MoodWrapSlides/GoalSlide';
-import { MonthlyHeroSlide } from './MoodWrapSlides/MonthlyHeroSlide';
-import { ByTheNumbersSlide } from './MoodWrapSlides/ByTheNumbersSlide';
-import { EmotionEvolutionSlide } from './MoodWrapSlides/EmotionEvolutionSlide';
-import { DominantEmotionSlide } from './MoodWrapSlides/DominantEmotionSlide';
-import { StreakSlide } from './MoodWrapSlides/StreakSlide';
-import { MostActiveDaySlide } from './MoodWrapSlides/MostActiveDaySlide';
-import { WordCloudSlide } from './MoodWrapSlides/WordCloudSlide';
-import { TransformationSlide } from './MoodWrapSlides/TransformationSlide';
-import { ConsistencySlide } from './MoodWrapSlides/ConsistencySlide';
-import { LookingAheadSlide } from './MoodWrapSlides/LookingAheadSlide';
-import { YearlyHeroSlide } from './MoodWrapSlides/YearlyHeroSlide';
-import { YearInNumbersSlide } from './MoodWrapSlides/YearInNumbersSlide';
-import { Top3EmotionsSlide } from './MoodWrapSlides/Top3EmotionsSlide';
-import { EmotionTimelineSlide } from './MoodWrapSlides/EmotionTimelineSlide';
-import { TransformativeMonthSlide } from './MoodWrapSlides/TransformativeMonthSlide';
-import { PeakHappinessSlide } from './MoodWrapSlides/PeakHappinessSlide';
-import { HardestMonthSlide } from './MoodWrapSlides/HardestMonthSlide';
-import { LongestStreakYearlySlide } from './MoodWrapSlides/LongestStreakYearlySlide';
-import { WordsThatDefinedSlide } from './MoodWrapSlides/WordsThatDefinedSlide';
-import { EmotionalGrowthSlide } from './MoodWrapSlides/EmotionalGrowthSlide';
-import { ConsistencyBadgeSlide } from './MoodWrapSlides/ConsistencyBadgeSlide';
-import { GratitudeCounterSlide } from './MoodWrapSlides/GratitudeCounterSlide';
-import { MostReflectiveDaySlide } from './MoodWrapSlides/MostReflectiveDaySlide';
-import { YearTransitionSlide } from './MoodWrapSlides/YearTransitionSlide';
-import { ShareJourneySlide } from './MoodWrapSlides/ShareJourneySlide';
-import { GlowCard } from './GlowCard';
 import './MoodWrapCarousel.css';
 
 interface MoodWrapCarouselProps {
@@ -41,27 +8,13 @@ interface MoodWrapCarouselProps {
   dateRange: string;
 }
 
-export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarouselProps) {
+export function MoodWrapCarousel({ stats: _stats }: MoodWrapCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartX = useRef<number>(0);
   const dragStartY = useRef<number>(0);
-  const lastTapTime = useRef<number>(0);
   const hasMoved = useRef<boolean>(false);
-
-  const getMonthName = (date: Date) => {
-    return date.toLocaleDateString('en-US', { month: 'long' });
-  };
-
-  const getNextMonthName = () => {
-    const nextMonth = new Date(stats.dateRange.end);
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    return nextMonth.toLocaleDateString('en-US', { month: 'long' });
-  };
-
-  const getYear = () => stats.dateRange.start.getFullYear();
-  const getNextYear = () => getYear() + 1;
 
   // Start from scratch - all blank slides with just pastel colored cards
   const slides = [
@@ -131,9 +84,7 @@ export function MoodWrapCarousel({ stats, timePeriod, dateRange }: MoodWrapCarou
     }
   };
 
-  const onMouseUp = (e: React.MouseEvent) => {
-    const wasDragging = isDragging;
-    const didMove = hasMoved.current;
+  const onMouseUp = (_e: React.MouseEvent) => {
     handleDragEnd();
     // Don't handle click here - let onClick handle it
   };

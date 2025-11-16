@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { MOODS, type JournalEntry } from '../types';
-import { JournalEntryCard } from '../components/JournalEntryCard';
 import { BackButton } from '../components/BackButton';
 import './EmotionBubble.css';
 
@@ -11,8 +10,6 @@ interface Bubble {
 }
 
 export function EmotionBubble() {
-  const [selectedEntries, setSelectedEntries] = useState<JournalEntry[]>([]);
-  const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
   const [entries, setEntries] = useState<JournalEntry[]>([]);
 
   useEffect(() => {
@@ -36,78 +33,112 @@ export function EmotionBubble() {
     }
   };
 
-  // 6 bubbles with different colors and emotions
+  // Calculate percentage of entries for each mood
+  // This ensures ALL entries are accounted for, including any mood variations
+  const calculateMoodPercentages = () => {
+    if (entries.length === 0) {
+      return {};
+    }
+
+    const moodCounts: Record<string, number> = {};
+    
+    // Count all entries by their mood ID
+    entries.forEach(entry => {
+      // Handle both cases: entry.mood.id or entry.mood (if it's already a string)
+      const moodId = typeof entry.mood === 'string' ? entry.mood : entry.mood.id;
+      
+      if (moodId) {
+        moodCounts[moodId] = (moodCounts[moodId] || 0) + 1;
+      }
+    });
+
+    // Calculate percentages based on total entries
+    const totalEntries = entries.length;
+    const percentages: Record<string, number> = {};
+    
+    Object.keys(moodCounts).forEach(moodId => {
+      percentages[moodId] = (moodCounts[moodId] / totalEntries) * 100;
+    });
+
+    // Also handle mood aliases/mappings (e.g., "anxious" for "angry")
+    // Map "happy" entries to "excited" if needed
+    if (moodCounts['happy'] && !moodCounts['excited']) {
+      percentages['excited'] = (moodCounts['happy'] / totalEntries) * 100;
+    } else if (moodCounts['happy'] && moodCounts['excited']) {
+      // If both exist, combine them
+      percentages['excited'] = ((moodCounts['happy'] + moodCounts['excited']) / totalEntries) * 100;
+    }
+
+    console.log('📊 Mood Percentages:', percentages);
+    console.log('📝 Total Entries:', totalEntries);
+    console.log('📈 Mood Counts:', moodCounts);
+
+    return percentages;
+  };
+
+  const moodPercentages = calculateMoodPercentages();
+
+  // 8 bubbles with different colors and emotions
   const bubbles: Bubble[] = [
     { emotion: 'Sad', color: '#6BB6FF', moodId: 'sad' },           // Blue
-    { emotion: 'Angry', color: '#FF6B6B', moodId: 'anxious' },    // Coral Red
+    { emotion: 'Angry', color: '#FF6B6B', moodId: 'angry' },       // Red
     { emotion: 'Anxious', color: '#FFD93D', moodId: 'anxious' },  // Yellow
-    { emotion: 'Calm', color: '#6BCB77', moodId: 'calm' },        // Green
-    { emotion: 'Happy', color: '#FF8CC8', moodId: 'happy' },      // Pink
+    { emotion: 'Calm', color: '#6BCB77', moodId: 'calm' },         // Green
+    { emotion: 'Excited', color: '#FF8CC8', moodId: 'excited' },  // Pink
     { emotion: 'Grateful', color: '#A78BFA', moodId: 'grateful' }, // Purple
+    { emotion: 'Reflective', color: '#FF8C42', moodId: 'reflective' }, // Orange
+    { emotion: 'Overwhelmed', color: '#9B59B6', moodId: 'overwhelmed' }, // Deep Purple
   ];
 
   const handleBubbleClick = (bubble: Bubble) => {
     const moodId = bubble.moodId;
-    const filteredEntries = entries.filter(entry => entry.mood.id === moodId);
-    setSelectedEntries(filteredEntries);
-    setSelectedEmotion(bubble.emotion);
+    // Open in a new tab (not a popup window)
+    // Use URL constructor to ensure proper URL formatting
+    const basePath = typeof __XR_ENV_BASE__ !== 'undefined' ? __XR_ENV_BASE__ : '/';
+    const pathSegments = [basePath.replace(/^\/|\/$/g, ''), 'emotion-entries', moodId].filter(Boolean);
+    const path = '/' + pathSegments.join('/');
+    const url = new URL(path, window.location.origin);
+    // Add color as URL parameter to ensure exact match
+    url.searchParams.set('color', bubble.color);
+    // Use _blank to open in new tab, noopener and noreferrer for security
+    window.open(url.href, '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <div className="emotion-bubble-page">
+    <div 
+      className="emotion-bubble-page"
+      style={{
+        background: 'linear-gradient(135deg, #f0e6ff 0%, #e6f0ff 25%, #ffe6f0 50%, #e6fff0 75%, #fff0e6 100%)',
+        backgroundSize: '400% 400%',
+        animation: 'holographicGradient 15s ease infinite',
+      }}
+    >
       <BackButton />
       
       <div className="bubbles-container">
         <div className="bubbles-grid">
-          {bubbles.map((bubble, index) => (
-            <div
-              key={index}
-              className="emotion-bubble"
-              style={{ 
-                '--bubble-color': bubble.color,
-                backgroundColor: bubble.color 
-              } as React.CSSProperties}
-              onClick={() => handleBubbleClick(bubble)}
-            >
-              <span className="bubble-emotion">{bubble.emotion}</span>
-            </div>
-          ))}
+          {bubbles.map((bubble, index) => {
+            const fillPercentage = moodPercentages[bubble.moodId] || 0;
+            return (
+              <div
+                key={index}
+                className="emotion-bubble glass-jar"
+                style={{ 
+                  '--bubble-color': bubble.color,
+                  '--fill-percentage': `${fillPercentage}%`,
+                } as React.CSSProperties}
+                onClick={() => handleBubbleClick(bubble)}
+              >
+                <div className="jar-fill" style={{ height: `${fillPercentage}%` }}></div>
+                <div className="jar-content">
+                  <span className="bubble-emotion">{bubble.emotion}</span>
+                  <span className="bubble-percentage">{fillPercentage.toFixed(0)}%</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
-
-      {/* Modal for showing entries */}
-      {selectedEntries.length > 0 && selectedEmotion && (
-        <div className="entries-modal" onClick={() => {
-          setSelectedEntries([]);
-          setSelectedEmotion(null);
-        }}>
-          <div className="entries-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="entries-modal-header">
-              <h2 className="entries-modal-title">
-                {selectedEmotion} Entries
-              </h2>
-              <button 
-                className="entries-modal-close"
-                onClick={() => {
-                  setSelectedEntries([]);
-                  setSelectedEmotion(null);
-                }}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="entries-modal-list">
-              {selectedEntries.length === 0 ? (
-                <p className="entries-empty">No entries found for this emotion.</p>
-              ) : (
-                selectedEntries.map(entry => (
-                  <JournalEntryCard key={entry.id} entry={entry} />
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

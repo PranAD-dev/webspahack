@@ -442,7 +442,7 @@ export function MoodWrap() {
       <BackButton />
 
       <div className="mood-wrap-container">
-        <h1 className="mood-wrap-title">Soul Summary</h1>
+            <h1 className="mood-wrap-title">Soul Summary</h1>
 
         <div className="time-period-tabs">
           <button

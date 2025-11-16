@@ -43,7 +43,7 @@ export function FeatureSelection() {
           </button>
           
           <button className="feature-button mood-wrap-button" onClick={handleMoodWrap}>
-            <div className="button-icon">🎨</div>
+            <div className="button-icon">🔮</div>
             <span className="button-label">Soul Summary</span>
             <span className="button-glow"></span>
           </button>

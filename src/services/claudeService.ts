@@ -451,13 +451,15 @@ ONLY output the numbered list, nothing else. No explanations, no intro text, jus
     
     // If all models failed with 404, provide helpful error message
     const triedModels = modelNames.join(', ');
+    const errorMessage = lastError?.message || 'Unknown error';
     throw new Error(
       `All Gemini models failed (tried: ${triedModels}). ` +
       `This usually means:\n` +
       `1. Your API key doesn't have access to these models\n` +
       `2. The models need to be enabled in Google AI Studio (https://aistudio.google.com/)\n` +
       `3. Check your API key permissions and ensure Gemini API is enabled\n` +
-      `Please visit https://aistudio.google.com/app/apikey to check your API key and available models.`
+      `Please visit https://aistudio.google.com/app/apikey to check your API key and available models.\n` +
+      `Last error: ${errorMessage}`
     );
   } catch (error: any) {
     console.error('❌ Gemini API error:', error);
@@ -474,7 +476,7 @@ ONLY output the numbered list, nothing else. No explanations, no intro text, jus
       const { GoogleGenerativeAI } = await import('@google/generative-ai');
       const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
       if (API_KEY) {
-        const genAI = new GoogleGenerativeAI(API_KEY);
+        void new GoogleGenerativeAI(API_KEY);
         // Note: listModels might not be available in browser, but worth trying
         console.log('💡 Tip: Check Google AI Studio for available models');
       }
@@ -617,7 +619,7 @@ Start your response directly with the feedback (no intro like "Here's your feedb
 
     return {
       content: feedbackText,
-      error: null,
+      error: undefined,
     };
   } catch (error: any) {
     console.error('❌ Error generating journal feedback:', error);

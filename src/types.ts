@@ -19,6 +19,7 @@ export const MOODS: Mood[] = [
   { id: 'happy', name: 'Happy', color: '#f0e68c', emoji: '😊' },
   { id: 'overwhelmed', name: 'Overwhelmed', color: '#dda0dd', emoji: '😵' },
   { id: 'sad', name: 'Sad', color: '#e6e6fa', emoji: '😢' },
+  { id: 'angry', name: 'Angry', color: '#FF6B6B', emoji: '😠' },
   { id: 'anxious', name: 'Anxious', color: '#ffb6c1', emoji: '😰' },
   { id: 'grateful', name: 'Grateful', color: '#98d8c8', emoji: '🙏' },
   { id: 'excited', name: 'Excited', color: '#ffdab9', emoji: '🤩' },

@@ -168,7 +168,7 @@ export function playTadaSound(volume: number = 0.3): void {
     
     // Then play the final chord
     const chordStartTime = ctx.currentTime + 0.3;
-    chordNotes.forEach((freq, index) => {
+    chordNotes.forEach((freq) => {
       const oscillator = ctx.createOscillator();
       const gainNode = ctx.createGain();
       

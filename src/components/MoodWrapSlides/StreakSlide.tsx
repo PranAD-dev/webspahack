@@ -7,7 +7,6 @@ interface StreakSlideProps {
 
 export function StreakSlide({ stats }: StreakSlideProps) {
   const mostActiveDay = stats.mostActiveDay;
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   
   return (
     <div className="slide-base streak-slide">

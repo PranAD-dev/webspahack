@@ -19,6 +19,7 @@ export function EmotionEntriesView() {
   const loadEntries = () => {
     try {
       const stored = localStorage.getItem('journalEntries');
+      console.log(stored);
       if (stored) {
         const parsed = JSON.parse(stored);
         const entriesWithDates = parsed.map((entry: any) => ({

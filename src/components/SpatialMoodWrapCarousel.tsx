@@ -50,6 +50,7 @@ export function SpatialMoodWrapCarousel({ stats, timePeriod, dateRange, onTimePe
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragStart, setDragStart] = useState<number | null>(null);
   const [dragCurrent, setDragCurrent] = useState<number | null>(null);
+  const slideRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   const getMonthName = (date: Date) => {
     return date.toLocaleDateString('en-US', { month: 'long' });
@@ -212,6 +213,17 @@ export function SpatialMoodWrapCarousel({ stats, timePeriod, dateRange, onTimePe
     }
   }, []);
 
+  // Focus the current slide when it changes
+  useEffect(() => {
+    const currentSlideElement = slideRefs.current.get(currentSlide);
+    if (currentSlideElement && !isTransitioning) {
+      // Small delay to ensure the transition has started
+      setTimeout(() => {
+        currentSlideElement.focus();
+      }, 50);
+    }
+  }, [currentSlide, isTransitioning]);
+
   // Calculate circular positioning for 3D carousel
   // Always show 3 cards: prev, current, next (like doubly linked list)
   const getVisibleSlides = (): Array<{ index: number; position: 'prev' | 'current' | 'next' }> => {
@@ -303,6 +315,14 @@ export function SpatialMoodWrapCarousel({ stats, timePeriod, dateRange, onTimePe
             return (
               <div
                 key={index}
+                ref={(el) => {
+                  if (el) {
+                    slideRefs.current.set(index, el);
+                  } else {
+                    slideRefs.current.delete(index);
+                  }
+                }}
+                tabIndex={isFocused ? 0 : -1}
                 className={`spatial-slide ${isFocused ? 'focused' : ''} position-${position} ${isDragging ? 'dragging' : ''}`}
                 style={{
                   transform: `translate3d(${transform.x}px, 0px, ${transform.z}px) rotateY(${transform.rotateY}deg) scale(${transform.scale})`,

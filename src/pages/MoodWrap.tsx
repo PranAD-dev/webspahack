@@ -49,6 +49,7 @@ function CardCarousel({
   const dragStartX = useRef<number>(0);
   const hasMoved = useRef<boolean>(false);
   const prevSlideRef = useRef<number>(0);
+  const slideRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   // Helper function to get month name
   const getMonthName = (date: Date) => {
@@ -138,6 +139,17 @@ function CardCarousel({
     }
     prevSlideRef.current = currentSlide;
   }, [currentSlide, slides.length]);
+
+  // Focus the current slide when it changes
+  useEffect(() => {
+    const currentSlideElement = slideRefs.current.get(currentSlide);
+    if (currentSlideElement && !isDragging) {
+      // Small delay to ensure the transition has started
+      setTimeout(() => {
+        currentSlideElement.focus();
+      }, 50);
+    }
+  }, [currentSlide, isDragging]);
 
   const handleDragStart = (clientX: number) => {
     dragStartX.current = clientX;
@@ -271,6 +283,14 @@ function CardCarousel({
           return (
             <div
               key={index}
+              ref={(el) => {
+                if (el) {
+                  slideRefs.current.set(index, el);
+                } else {
+                  slideRefs.current.delete(index);
+                }
+              }}
+              tabIndex={isActive ? 0 : -1}
               className={`floating-card ${isActive ? 'active' : ''}`}
               style={{
                 zIndex,
